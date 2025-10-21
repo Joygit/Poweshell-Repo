@@ -1,0 +1,12 @@
+1.Proceeding to check if the Azure PowerShell module is installed and then provide the login command.
+>> Get-Module -ListAvailable Az
+
+2.To install and connect, run these commands in your PowerShell terminal:
+>>Install-Module -Name Az -Scope CurrentUser -Repository PSGallery -Force
+if you have older Azure modules or conflicting commands, you should use the -AllowClobber flag when installing the Az module.
+>>Install-Module -Name Az -Scope CurrentUser -Repository PSGallery -Force -AllowClobber
+3.to set the policy 
+>>Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
+4.Then
+>>Import-Module Az -Verbose
+>>Connect-AzAccount
