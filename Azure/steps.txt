@@ -1,3 +1,13 @@
+Github issue :
+git fetch origin
+git pull origin Master --allow-unrelated-histories
+# Resolve any merge conflicts, then:
+git add .
+git commit -m "Merge remote master"
+git push -u origin Master
+
+
+
 1.Proceeding to check if the Azure PowerShell module is installed and then provide the login command.
 >> Get-Module -ListAvailable Az
 
