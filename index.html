@@ -1,0 +1,1984 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PowerShell Mastery — Basics to Azure Expert</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;600;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #060b12;
+    --bg2: #0d1520;
+    --bg3: #111e2e;
+    --panel: #0a1424;
+    --border: #1a2f47;
+    --border2: #1e3a56;
+    --ps-blue: #0078d4;
+    --ps-cyan: #00b4d8;
+    --ps-green: #39d353;
+    --ps-yellow: #ffd166;
+    --ps-orange: #ff6b35;
+    --ps-purple: #9b72cf;
+    --ps-red: #ff4757;
+    --ps-pink: #f72585;
+    --text: #c9d8ec;
+    --text2: #7a98b8;
+    --text3: #4a6680;
+    --white: #e8f4ff;
+    --glow: 0 0 20px rgba(0,180,216,0.3);
+    --glow2: 0 0 40px rgba(0,120,212,0.2);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    line-height: 1.6;
+    overflow-x: hidden;
+  }
+
+  /* ─── GRID BACKGROUND ─── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,180,216,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,180,216,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ─── SIDEBAR NAV ─── */
+  .sidebar {
+    position: fixed;
+    left: 0; top: 0; bottom: 0;
+    width: 260px;
+    background: var(--panel);
+    border-right: 1px solid var(--border);
+    overflow-y: auto;
+    z-index: 100;
+    padding: 0 0 40px 0;
+  }
+  .sidebar::-webkit-scrollbar { width: 4px; }
+  .sidebar::-webkit-scrollbar-track { background: var(--bg); }
+  .sidebar::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+
+  .sidebar-logo {
+    padding: 24px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 12px;
+  }
+  .sidebar-logo .ps-icon {
+    width: 36px; height: 36px;
+    background: linear-gradient(135deg, var(--ps-blue), var(--ps-cyan));
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700; font-size: 14px;
+    color: white;
+    flex-shrink: 0;
+  }
+  .sidebar-logo span {
+    font-size: 13px; font-weight: 700;
+    color: var(--white); letter-spacing: 0.05em;
+    line-height: 1.3;
+  }
+  .sidebar-logo small { display: block; color: var(--text3); font-size: 10px; font-weight: 400; margin-top: 2px; }
+
+  .nav-section { padding: 16px 0 4px 0; }
+  .nav-section-title {
+    padding: 0 20px 8px;
+    font-size: 9px; font-weight: 700;
+    letter-spacing: 0.15em;
+    color: var(--text3);
+    text-transform: uppercase;
+  }
+  .nav-link {
+    display: flex; align-items: center; gap: 10px;
+    padding: 8px 20px;
+    color: var(--text2);
+    text-decoration: none;
+    font-size: 12px; font-weight: 500;
+    transition: all 0.2s;
+    border-left: 2px solid transparent;
+  }
+  .nav-link:hover { color: var(--ps-cyan); background: rgba(0,180,216,0.05); border-left-color: var(--ps-cyan); }
+  .nav-link.active { color: var(--ps-cyan); background: rgba(0,180,216,0.08); border-left-color: var(--ps-cyan); }
+  .nav-link .dot {
+    width: 5px; height: 5px; border-radius: 50%;
+    background: var(--border2); flex-shrink: 0;
+    transition: background 0.2s;
+  }
+  .nav-link:hover .dot, .nav-link.active .dot { background: var(--ps-cyan); }
+
+  /* ─── MAIN CONTENT ─── */
+  .main {
+    margin-left: 260px;
+    min-height: 100vh;
+    position: relative; z-index: 1;
+  }
+
+  /* ─── HERO ─── */
+  .hero {
+    padding: 80px 60px 60px;
+    border-bottom: 1px solid var(--border);
+    background: linear-gradient(180deg, rgba(0,120,212,0.08) 0%, transparent 100%);
+    position: relative; overflow: hidden;
+  }
+  .hero::before {
+    content: '> _';
+    position: absolute;
+    right: 60px; top: 50%; transform: translateY(-50%);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 120px; font-weight: 700;
+    color: rgba(0,180,216,0.06);
+    letter-spacing: -4px;
+    user-select: none;
+  }
+  .hero-eyebrow {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: rgba(0,180,216,0.1);
+    border: 1px solid rgba(0,180,216,0.25);
+    border-radius: 20px;
+    padding: 4px 14px;
+    font-size: 11px; font-weight: 600;
+    color: var(--ps-cyan); letter-spacing: 0.1em;
+    margin-bottom: 20px;
+  }
+  .hero-eyebrow::before { content: '●'; font-size: 8px; animation: blink 1.5s infinite; }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
+  .hero h1 {
+    font-size: clamp(36px, 4vw, 56px);
+    font-weight: 800;
+    color: var(--white);
+    line-height: 1.1;
+    margin-bottom: 16px;
+  }
+  .hero h1 em {
+    font-style: normal;
+    background: linear-gradient(90deg, var(--ps-blue), var(--ps-cyan));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .hero-sub {
+    font-size: 15px; color: var(--text2); max-width: 560px; line-height: 1.7;
+    margin-bottom: 32px;
+  }
+  .hero-tags { display: flex; flex-wrap: wrap; gap: 8px; }
+  .hero-tag {
+    padding: 5px 12px;
+    background: var(--bg3);
+    border: 1px solid var(--border2);
+    border-radius: 6px;
+    font-size: 11px; font-weight: 600;
+    color: var(--text2); font-family: 'JetBrains Mono', monospace;
+  }
+
+  /* ─── SECTIONS ─── */
+  .section {
+    padding: 60px 60px;
+    border-bottom: 1px solid var(--border);
+  }
+  .section-header { margin-bottom: 40px; }
+  .section-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 10px; font-weight: 700;
+    letter-spacing: 0.12em; text-transform: uppercase;
+    padding: 3px 10px; border-radius: 4px;
+    margin-bottom: 12px;
+  }
+  .badge-green { background: rgba(57,211,83,0.1); color: var(--ps-green); border: 1px solid rgba(57,211,83,0.2); }
+  .badge-blue { background: rgba(0,120,212,0.1); color: var(--ps-blue); border: 1px solid rgba(0,120,212,0.25); }
+  .badge-cyan { background: rgba(0,180,216,0.1); color: var(--ps-cyan); border: 1px solid rgba(0,180,216,0.2); }
+  .badge-purple { background: rgba(155,114,207,0.12); color: var(--ps-purple); border: 1px solid rgba(155,114,207,0.25); }
+  .badge-orange { background: rgba(255,107,53,0.1); color: var(--ps-orange); border: 1px solid rgba(255,107,53,0.2); }
+  .badge-yellow { background: rgba(255,209,102,0.1); color: var(--ps-yellow); border: 1px solid rgba(255,209,102,0.2); }
+  .badge-red { background: rgba(255,71,87,0.1); color: var(--ps-red); border: 1px solid rgba(255,71,87,0.2); }
+  .badge-pink { background: rgba(247,37,133,0.1); color: var(--ps-pink); border: 1px solid rgba(247,37,133,0.2); }
+
+  .section-header h2 {
+    font-size: 28px; font-weight: 800;
+    color: var(--white); line-height: 1.2;
+  }
+  .section-header p {
+    font-size: 14px; color: var(--text2);
+    margin-top: 8px; max-width: 600px;
+  }
+
+  /* ─── CODE BLOCKS ─── */
+  .code-block {
+    background: #050c14;
+    border: 1px solid var(--border2);
+    border-radius: 10px;
+    overflow: hidden;
+    margin: 20px 0;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.4);
+  }
+  .code-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 16px;
+    background: var(--bg3);
+    border-bottom: 1px solid var(--border);
+  }
+  .code-header-left { display: flex; align-items: center; gap: 10px; }
+  .code-dots { display: flex; gap: 6px; }
+  .code-dots span {
+    width: 10px; height: 10px; border-radius: 50%;
+  }
+  .code-dots .d1 { background: #ff5f56; }
+  .code-dots .d2 { background: #ffbd2e; }
+  .code-dots .d3 { background: #27c93f; }
+  .code-filename {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px; color: var(--text3);
+  }
+  .code-lang {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px; color: var(--text3);
+    background: var(--bg);
+    padding: 2px 8px; border-radius: 4px;
+    border: 1px solid var(--border);
+    letter-spacing: 0.05em;
+  }
+  .code-body {
+    padding: 20px 24px;
+    overflow-x: auto;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12.5px;
+    line-height: 1.8;
+    tab-size: 2;
+    white-space: pre;
+  }
+  .code-body::-webkit-scrollbar { height: 4px; }
+  .code-body::-webkit-scrollbar-track { background: var(--bg); }
+  .code-body::-webkit-scrollbar-thumb { background: var(--border2); }
+
+  /* PS Syntax Highlighting */
+  .ps-comment { color: #546e7a; font-style: italic; }
+  .ps-kw { color: var(--ps-purple); font-weight: 600; }
+  .ps-cmd { color: var(--ps-cyan); }
+  .ps-param { color: var(--ps-blue); }
+  .ps-str { color: var(--ps-green); }
+  .ps-var { color: var(--ps-orange); }
+  .ps-num { color: var(--ps-yellow); }
+  .ps-op { color: var(--ps-pink); }
+  .ps-type { color: #4fc3f7; }
+  .ps-out { color: var(--text2); }
+  .kql-kw { color: var(--ps-purple); font-weight: 600; }
+  .kql-fn { color: var(--ps-cyan); }
+  .kql-str { color: var(--ps-green); }
+  .kql-num { color: var(--ps-yellow); }
+  .kql-op { color: var(--ps-pink); }
+  .kql-tbl { color: var(--ps-orange); font-weight: 600; }
+  .kql-comment { color: #546e7a; font-style: italic; }
+
+  /* ─── CONCEPT CARDS ─── */
+  .card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; margin: 24px 0; }
+  .card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 20px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .card:hover { border-color: var(--border2); box-shadow: var(--glow2); }
+  .card-icon {
+    font-size: 20px; margin-bottom: 10px;
+  }
+  .card h4 { font-size: 14px; font-weight: 700; color: var(--white); margin-bottom: 6px; }
+  .card p { font-size: 12px; color: var(--text2); line-height: 1.6; }
+
+  /* ─── TABLES ─── */
+  .table-wrap { overflow-x: auto; margin: 20px 0; border-radius: 10px; border: 1px solid var(--border); }
+  table { width: 100%; border-collapse: collapse; }
+  th {
+    background: var(--bg3);
+    padding: 10px 16px;
+    text-align: left;
+    font-size: 11px; font-weight: 700;
+    color: var(--text2); letter-spacing: 0.08em;
+    text-transform: uppercase;
+    border-bottom: 1px solid var(--border);
+  }
+  td {
+    padding: 10px 16px;
+    font-size: 12px; color: var(--text);
+    border-bottom: 1px solid var(--border);
+    font-family: 'JetBrains Mono', monospace;
+  }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: rgba(0,180,216,0.03); }
+
+  /* ─── CALLOUTS ─── */
+  .callout {
+    display: flex; gap: 12px;
+    padding: 14px 16px; border-radius: 8px;
+    margin: 16px 0; font-size: 13px; line-height: 1.6;
+  }
+  .callout-info { background: rgba(0,180,216,0.06); border: 1px solid rgba(0,180,216,0.2); color: var(--ps-cyan); }
+  .callout-warn { background: rgba(255,209,102,0.06); border: 1px solid rgba(255,209,102,0.2); color: var(--ps-yellow); }
+  .callout-tip { background: rgba(57,211,83,0.06); border: 1px solid rgba(57,211,83,0.2); color: var(--ps-green); }
+  .callout-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+  .callout-body { color: var(--text); }
+  .callout-body strong { color: inherit; }
+
+  /* ─── INLINE CODE ─── */
+  code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85em;
+    background: rgba(0,180,216,0.08);
+    border: 1px solid rgba(0,180,216,0.15);
+    border-radius: 4px;
+    padding: 1px 6px;
+    color: var(--ps-cyan);
+  }
+
+  /* ─── STEP LIST ─── */
+  .step-list { list-style: none; margin: 16px 0; }
+  .step-list li {
+    display: flex; gap: 12px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
+  }
+  .step-list li:last-child { border-bottom: none; }
+  .step-num {
+    width: 24px; height: 24px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--ps-blue), var(--ps-cyan));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 700; color: white;
+    flex-shrink: 0; margin-top: 1px;
+  }
+  .step-list li span { color: var(--text); line-height: 1.6; }
+
+  /* ─── SECTION DIVIDER ─── */
+  h3 {
+    font-size: 17px; font-weight: 700; color: var(--white);
+    margin: 32px 0 12px;
+    padding-left: 12px;
+    border-left: 3px solid var(--ps-cyan);
+  }
+  h4 { font-size: 14px; font-weight: 700; color: var(--ps-yellow); margin: 20px 0 8px; }
+  p { font-size: 13px; color: var(--text); line-height: 1.8; margin: 8px 0; }
+  ul, ol { padding-left: 20px; font-size: 13px; color: var(--text); line-height: 1.9; }
+  li { margin: 2px 0; }
+
+  /* ─── MOBILE TOGGLE ─── */
+  .menu-toggle {
+    display: none;
+    position: fixed; top: 16px; left: 16px;
+    z-index: 200;
+    background: var(--ps-blue); color: white;
+    border: none; border-radius: 8px;
+    width: 40px; height: 40px;
+    font-size: 18px; cursor: pointer;
+  }
+
+  /* ─── FOOTER ─── */
+  .footer {
+    padding: 40px 60px;
+    border-top: 1px solid var(--border);
+    text-align: center;
+    font-size: 12px; color: var(--text3);
+  }
+  .footer strong { color: var(--ps-cyan); }
+
+  /* ─── PROGRESS ─── */
+  .progress-bar {
+    display: flex; gap: 4px; margin: 12px 0;
+    align-items: center;
+  }
+  .progress-bar span {
+    font-size: 11px; color: var(--text2);
+    margin-right: 6px; white-space: nowrap;
+    font-weight: 600;
+  }
+  .progress-seg {
+    height: 4px; flex: 1; border-radius: 2px;
+    background: var(--border2);
+  }
+  .progress-seg.filled { background: linear-gradient(90deg, var(--ps-blue), var(--ps-cyan)); }
+
+  @media (max-width: 900px) {
+    .sidebar { transform: translateX(-100%); transition: transform 0.3s; }
+    .sidebar.open { transform: translateX(0); }
+    .main { margin-left: 0; }
+    .section, .hero { padding: 40px 24px; }
+    .hero::before { display: none; }
+    .menu-toggle { display: flex; align-items: center; justify-content: center; }
+  }
+</style>
+</head>
+<body>
+
+<button class="menu-toggle" onclick="document.querySelector('.sidebar').classList.toggle('open')">☰</button>
+
+<!-- ─── SIDEBAR ─── -->
+<nav class="sidebar">
+  <div class="sidebar-logo">
+    <div class="ps-icon">PS</div>
+    <div>
+      <span>PowerShell Mastery</span>
+      <small>Basics → Azure Expert</small>
+    </div>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-section-title">Getting Started</div>
+    <a href="#intro" class="nav-link"><div class="dot"></div>Introduction</a>
+    <a href="#basics" class="nav-link"><div class="dot"></div>Variables & Data Types</a>
+    <a href="#operators" class="nav-link"><div class="dot"></div>Operators</a>
+    <a href="#control" class="nav-link"><div class="dot"></div>Control Flow</a>
+    <a href="#loops" class="nav-link"><div class="dot"></div>Loops</a>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-section-title">Core Concepts</div>
+    <a href="#functions" class="nav-link"><div class="dot"></div>Functions & Parameters</a>
+    <a href="#pipelines" class="nav-link"><div class="dot"></div>Pipelines & Objects</a>
+    <a href="#errors" class="nav-link"><div class="dot"></div>Error Handling</a>
+    <a href="#filesystem" class="nav-link"><div class="dot"></div>File System & I/O</a>
+    <a href="#regex" class="nav-link"><div class="dot"></div>Regex & Strings</a>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-section-title">Advanced PowerShell</div>
+    <a href="#classes" class="nav-link"><div class="dot"></div>Classes & OOP</a>
+    <a href="#modules" class="nav-link"><div class="dot"></div>Modules & Manifests</a>
+    <a href="#jobs" class="nav-link"><div class="dot"></div>Jobs & Runspaces</a>
+    <a href="#remoting" class="nav-link"><div class="dot"></div>Remoting & WinRM</a>
+    <a href="#dsc" class="nav-link"><div class="dot"></div>DSC Configs</a>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-section-title">Azure & Cloud</div>
+    <a href="#az-connect" class="nav-link"><div class="dot"></div>Az Module & Auth</a>
+    <a href="#az-resources" class="nav-link"><div class="dot"></div>Resource Management</a>
+    <a href="#runbooks" class="nav-link"><div class="dot"></div>Automation Runbooks</a>
+    <a href="#runbook-examples" class="nav-link"><div class="dot"></div>Runbook Examples</a>
+    <a href="#monitoring" class="nav-link"><div class="dot"></div>Azure Monitor</a>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-section-title">KQL & Analytics</div>
+    <a href="#kql-intro" class="nav-link"><div class="dot"></div>KQL Fundamentals</a>
+    <a href="#kql-advanced" class="nav-link"><div class="dot"></div>Advanced KQL</a>
+    <a href="#kql-ps" class="nav-link"><div class="dot"></div>KQL from PowerShell</a>
+    <a href="#sentinel" class="nav-link"><div class="dot"></div>Sentinel Queries</a>
+  </div>
+</nav>
+
+<!-- ─── MAIN ─── -->
+<main class="main">
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-eyebrow">Complete Learning Path</div>
+  <h1>PowerShell <em>Mastery</em><br>from Zero to Azure Expert</h1>
+  <p class="hero-sub">A comprehensive, code-first guide covering PowerShell fundamentals, scripting patterns, Azure Automation Runbooks, and KQL analytics — with dozens of real-world examples.</p>
+  <div class="hero-tags">
+    <span class="hero-tag">PS 7.x</span>
+    <span class="hero-tag">Azure Az Module</span>
+    <span class="hero-tag">Automation Runbooks</span>
+    <span class="hero-tag">KQL / Log Analytics</span>
+    <span class="hero-tag">Azure Sentinel</span>
+    <span class="hero-tag">DSC</span>
+    <span class="hero-tag">Remoting</span>
+  </div>
+</section>
+
+<!-- ─── INTRODUCTION ─── -->
+<section class="section" id="intro">
+  <div class="section-header">
+    <span class="section-badge badge-green">Start Here</span>
+    <h2>Introduction to PowerShell</h2>
+    <p>PowerShell is a cross-platform task automation shell and scripting language built on .NET. It uses a verb-noun command structure (cmdlets) and passes structured .NET objects through its pipeline.</p>
+  </div>
+
+  <div class="card-grid">
+    <div class="card"><div class="card-icon">🔷</div><h4>Cmdlets</h4><p>Commands following <code>Verb-Noun</code> pattern. E.g., <code>Get-Process</code>, <code>Set-Item</code>, <code>New-AzResourceGroup</code>.</p></div>
+    <div class="card"><div class="card-icon">🔗</div><h4>Pipeline</h4><p>Pass .NET objects between cmdlets using <code>|</code>. Unlike bash, you pass rich objects, not plain text strings.</p></div>
+    <div class="card"><div class="card-icon">📦</div><h4>Modules</h4><p>Packaged collections of cmdlets. Import with <code>Import-Module</code> or auto-loaded from <code>$PSModulePath</code>.</p></div>
+    <div class="card"><div class="card-icon">🌐</div><h4>Cross-Platform</h4><p>PowerShell 7+ runs on Windows, Linux, and macOS. Perfect for Azure DevOps pipelines and cloud automation.</p></div>
+  </div>
+
+  <div class="code-block">
+    <div class="code-header">
+      <div class="code-header-left"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-filename">first-steps.ps1</span></div>
+      <span class="code-lang">PowerShell</span>
+    </div>
+    <div class="code-body"><span class="ps-comment"># Check version</span>
+<span class="ps-var">$PSVersionTable</span>.<span class="ps-cmd">PSVersion</span>
+
+<span class="ps-comment"># Get help for any cmdlet</span>
+<span class="ps-cmd">Get-Help</span> <span class="ps-cmd">Get-Process</span> <span class="ps-param">-Full</span>
+<span class="ps-cmd">Get-Help</span> <span class="ps-cmd">*-Service</span>                     <span class="ps-comment"># Wildcard search</span>
+
+<span class="ps-comment"># Discover commands</span>
+<span class="ps-cmd">Get-Command</span> <span class="ps-param">-Verb</span> <span class="ps-str">"Get"</span>
+<span class="ps-cmd">Get-Command</span> <span class="ps-param">-Module</span> <span class="ps-str">"Az.Resources"</span>
+
+<span class="ps-comment"># Explore object properties</span>
+<span class="ps-cmd">Get-Process</span> | <span class="ps-cmd">Get-Member</span>
+<span class="ps-cmd">Get-Process</span> | <span class="ps-cmd">Select-Object</span> <span class="ps-param">-Property</span> Name, CPU, WorkingSet
+
+<span class="ps-comment"># Execution policy (run once as Admin)</span>
+<span class="ps-cmd">Set-ExecutionPolicy</span> <span class="ps-param">-ExecutionPolicy</span> RemoteSigned <span class="ps-param">-Scope</span> CurrentUser</div>
+  </div>
+</section>
+
+<!-- ─── VARIABLES ─── -->
+<section class="section" id="basics">
+  <div class="section-header">
+    <span class="section-badge badge-green">Level 1</span>
+    <h2>Variables & Data Types</h2>
+    <p>Variables are prefixed with <code>$</code>. PowerShell is dynamically typed but supports explicit type casting.</p>
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <tr><th>Type</th><th>Example</th><th>Description</th></tr>
+      <tr><td>[string]</td><td>$name = "Azure"</td><td>Unicode text</td></tr>
+      <tr><td>[int] / [long]</td><td>$port = 443</td><td>32/64-bit integer</td></tr>
+      <tr><td>[double]</td><td>$pi = 3.14159</td><td>Floating point</td></tr>
+      <tr><td>[bool]</td><td>$flag = $true</td><td>Boolean ($true/$false)</td></tr>
+      <tr><td>[datetime]</td><td>$now = Get-Date</td><td>Date and time</td></tr>
+      <tr><td>[array]</td><td>$list = @(1,2,3)</td><td>Ordered collection</td></tr>
+      <tr><td>[hashtable]</td><td>$map = @{k="v"}</td><td>Key-value pairs</td></tr>
+      <tr><td>[pscustomobject]</td><td>[PSCustomObject]@{}</td><td>Custom structured object</td></tr>
+    </table>
+  </div>
+
+  <div class="code-block">
+    <div class="code-header">
+      <div class="code-header-left"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-filename">variables.ps1</span></div>
+      <span class="code-lang">PowerShell</span>
+    </div>
+    <div class="code-body"><span class="ps-comment"># ── BASIC TYPES ──────────────────────────────────────</span>
+<span class="ps-var">$name</span>       = <span class="ps-str">"PowerShell"</span>
+<span class="ps-var">$version</span>    = <span class="ps-num">7.4</span>
+<span class="ps-var">$isReady</span>    = <span class="ps-var">$true</span>
+<span class="ps-var">$nothing</span>    = <span class="ps-var">$null</span>
+<span class="ps-var">$today</span>      = <span class="ps-cmd">Get-Date</span>
+
+<span class="ps-comment"># ── STRING INTERPOLATION ─────────────────────────────</span>
+<span class="ps-var">$greeting</span> = <span class="ps-str">"Hello, <span class="ps-var">$name</span>! Version <span class="ps-var">$version</span>"</span>
+<span class="ps-var">$safe</span>     = <span class="ps-str">'No interpolation here: $name'</span>
+<span class="ps-var">$multiline</span> = <span class="ps-str">@"
+  This is a here-string.
+  Name: $name
+"@</span>
+
+<span class="ps-comment"># ── ARRAYS ───────────────────────────────────────────</span>
+<span class="ps-var">$fruits</span>    = <span class="ps-op">@(</span><span class="ps-str">"apple"</span>, <span class="ps-str">"banana"</span>, <span class="ps-str">"cherry"</span><span class="ps-op">)</span>
+<span class="ps-var">$fruits</span><span class="ps-op">[</span><span class="ps-num">0</span><span class="ps-op">]</span>             <span class="ps-comment"># → apple</span>
+<span class="ps-var">$fruits</span><span class="ps-op">[-</span><span class="ps-num">1</span><span class="ps-op">]</span>            <span class="ps-comment"># → cherry</span>
+<span class="ps-var">$fruits</span><span class="ps-op">[</span><span class="ps-num">1</span>..<span class="ps-num">2</span><span class="ps-op">]</span>           <span class="ps-comment"># → banana, cherry</span>
+<span class="ps-var">$fruits</span> <span class="ps-op">+=</span> <span class="ps-str">"date"</span>        <span class="ps-comment"># append</span>
+<span class="ps-var">$fruits</span>.Count            <span class="ps-comment"># → 4</span>
+
+<span class="ps-comment"># ── HASHTABLE ────────────────────────────────────────</span>
+<span class="ps-var">$config</span> = <span class="ps-op">@{</span>
+  Environment = <span class="ps-str">"Production"</span>
+  Region      = <span class="ps-str">"eastus"</span>
+  MaxNodes    = <span class="ps-num">10</span>
+<span class="ps-op">}</span>
+<span class="ps-var">$config</span>.Region           <span class="ps-comment"># → eastus</span>
+<span class="ps-var">$config</span><span class="ps-op">[</span><span class="ps-str">"MaxNodes"</span><span class="ps-op">]</span>       <span class="ps-comment"># → 10</span>
+<span class="ps-var">$config</span>.NewKey = <span class="ps-str">"value"</span>   <span class="ps-comment"># add key</span>
+
+<span class="ps-comment"># ── PSCUSTOMOBJECT ───────────────────────────────────</span>
+<span class="ps-var">$server</span> = <span class="ps-op">[</span><span class="ps-type">PSCustomObject</span><span class="ps-op">]@{</span>
+  Name   = <span class="ps-str">"web-01"</span>
+  IP     = <span class="ps-str">"10.0.0.4"</span>
+  OS     = <span class="ps-str">"Ubuntu 22.04"</span>
+  Online = <span class="ps-var">$true</span>
+<span class="ps-op">}</span>
+<span class="ps-cmd">Write-Host</span> <span class="ps-str">"Server: <span class="ps-var">$($server.Name)</span> @ <span class="ps-var">$($server.IP)</span>"</span>
+
+<span class="ps-comment"># ── EXPLICIT TYPING ─────────────────────────────────</span>
+<span class="ps-op">[</span><span class="ps-type">int</span><span class="ps-op">]</span><span class="ps-var">$port</span>     = <span class="ps-num">443</span>
+<span class="ps-op">[</span><span class="ps-type">string</span><span class="ps-op">]</span><span class="ps-var">$id</span>   = <span class="ps-num">42</span>          <span class="ps-comment"># auto converts to "42"</span>
+<span class="ps-op">[</span><span class="ps-type">datetime</span><span class="ps-op">]</span><span class="ps-var">$d</span> = <span class="ps-str">"2025-01-01"</span>  <span class="ps-comment"># parsed to DateTime</span>
+
+<span class="ps-comment"># ── SPECIAL VARIABLES ───────────────────────────────</span>
+<span class="ps-var">$_</span>            <span class="ps-comment"># current pipeline object</span>
+<span class="ps-var">$?</span>            <span class="ps-comment"># last command success (bool)</span>
+<span class="ps-var">$LASTEXITCODE</span> <span class="ps-comment"># exit code of last native binary</span>
+<span class="ps-var">$Error</span>        <span class="ps-comment"># array of recent errors</span>
+<span class="ps-var">$PSScriptRoot</span> <span class="ps-comment"># directory of currently running script</span>
+<span class="ps-var">$MyInvocation</span> <span class="ps-comment"># info about current invocation</span></div>
+  </div>
+</section>
+
+<!-- ─── OPERATORS ─── -->
+<section class="section" id="operators">
+  <div class="section-header">
+    <span class="section-badge badge-green">Level 1</span>
+    <h2>Operators</h2>
+    <p>PowerShell uses word-based comparison operators and supports all standard arithmetic, logical, and string operators.</p>
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <tr><th>Category</th><th>Operator</th><th>Meaning</th></tr>
+      <tr><td>Comparison</td><td>-eq / -ne</td><td>Equal / Not equal</td></tr>
+      <tr><td>Comparison</td><td>-gt / -ge / -lt / -le</td><td>Greater/less than (or equal)</td></tr>
+      <tr><td>Comparison</td><td>-like / -notlike</td><td>Wildcard match (*)</td></tr>
+      <tr><td>Comparison</td><td>-match / -notmatch</td><td>Regex match</td></tr>
+      <tr><td>Comparison</td><td>-contains / -in</td><td>Collection membership</td></tr>
+      <tr><td>Logical</td><td>-and / -or / -not / -xor</td><td>Boolean logic</td></tr>
+      <tr><td>String</td><td>-replace / -split / -join</td><td>String manipulation</td></tr>
+      <tr><td>Type</td><td>-is / -isnot / -as</td><td>Type checking/casting</td></tr>
+    </table>
+  </div>
+
+  <div class="code-block">
+    <div class="code-header">
+      <div class="code-header-left"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-filename">operators.ps1</span></div>
+      <span class="code-lang">PowerShell</span>
+    </div>
+    <div class="code-body"><span class="ps-comment"># ── COMPARISON ───────────────────────────────────────</span>
+<span class="ps-num">5</span> <span class="ps-op">-eq</span> <span class="ps-num">5</span>                     <span class="ps-comment"># True</span>
+<span class="ps-str">"Azure"</span> <span class="ps-op">-like</span> <span class="ps-str">"Az*"</span>        <span class="ps-comment"># True (case-insensitive)</span>
+<span class="ps-str">"Azure"</span> <span class="ps-op">-clike</span> <span class="ps-str">"az*"</span>       <span class="ps-comment"># False (case-sensitive with c prefix)</span>
+<span class="ps-str">"server-01"</span> <span class="ps-op">-match</span> <span class="ps-str">"\d+"</span>   <span class="ps-comment"># True; $Matches[0] = "01"</span>
+
+<span class="ps-comment"># ── ARRAY OPERATORS ──────────────────────────────────</span>
+<span class="ps-var">$arr</span> = <span class="ps-num">1</span>,<span class="ps-num">2</span>,<span class="ps-num">3</span>,<span class="ps-num">4</span>,<span class="ps-num">5</span>
+<span class="ps-var">$arr</span> <span class="ps-op">-contains</span> <span class="ps-num">3</span>           <span class="ps-comment"># True</span>
+<span class="ps-num">3</span> <span class="ps-op">-in</span> <span class="ps-var">$arr</span>                 <span class="ps-comment"># True (reversed syntax)</span>
+<span class="ps-var">$arr</span> <span class="ps-op">-gt</span> <span class="ps-num">3</span>                 <span class="ps-comment"># Returns: 4 5  (filters array!)</span>
+
+<span class="ps-comment"># ── STRING OPERATORS ─────────────────────────────────</span>
+<span class="ps-str">"Hello World"</span> <span class="ps-op">-replace</span> <span class="ps-str">"World"</span>, <span class="ps-str">"Azure"</span>   <span class="ps-comment"># Hello Azure</span>
+<span class="ps-str">"a,b,c"</span> <span class="ps-op">-split</span> <span class="ps-str">","</span>          <span class="ps-comment"># @("a","b","c")</span>
+<span class="ps-op">@(</span><span class="ps-str">"x"</span>,<span class="ps-str">"y"</span>,<span class="ps-str">"z"</span><span class="ps-op">)</span> <span class="ps-op">-join</span> <span class="ps-str">"-"</span>    <span class="ps-comment"># "x-y-z"</span>
+
+<span class="ps-comment"># ── TYPE OPERATORS ───────────────────────────────────</span>
+<span class="ps-str">"hello"</span> <span class="ps-op">-is</span> <span class="ps-op">[</span><span class="ps-type">string</span><span class="ps-op">]</span>       <span class="ps-comment"># True</span>
+<span class="ps-num">42</span> <span class="ps-op">-is</span> <span class="ps-op">[</span><span class="ps-type">int</span><span class="ps-op">]</span>                <span class="ps-comment"># True</span>
+<span class="ps-str">"3.14"</span> <span class="ps-op">-as</span> <span class="ps-op">[</span><span class="ps-type">double</span><span class="ps-op">]</span>        <span class="ps-comment"># 3.14 (or $null if fails)</span>
+
+<span class="ps-comment"># ── TERNARY (PS 7+) ──────────────────────────────────</span>
+<span class="ps-var">$status</span> = <span class="ps-var">$true</span> <span class="ps-op">?</span> <span class="ps-str">"Online"</span> <span class="ps-op">:</span> <span class="ps-str">"Offline"</span>
+
+<span class="ps-comment"># ── NULL COALESCING (PS 7+) ──────────────────────────</span>
+<span class="ps-var">$value</span> = <span class="ps-var">$null</span>
+<span class="ps-var">$result</span> = <span class="ps-var">$value</span> <span class="ps-op">??</span> <span class="ps-str">"default"</span>   <span class="ps-comment"># "default"</span>
+<span class="ps-var">$value</span> <span class="ps-op">??=</span> <span class="ps-str">"assigned"</span>            <span class="ps-comment"># assign if null</span></div>
+  </div>
+</section>
+
+<!-- ─── CONTROL FLOW ─── -->
+<section class="section" id="control">
+  <div class="section-header">
+    <span class="section-badge badge-cyan">Level 2</span>
+    <h2>Control Flow</h2>
+    <p>Conditional logic including <code>if/elseif/else</code>, <code>switch</code>, and the powerful <code>switch -Regex</code> pattern matching.</p>
+  </div>
+
+  <div class="code-block">
+    <div class="code-header">
+      <div class="code-header-left"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-filename">control-flow.ps1</span></div>
+      <span class="code-lang">PowerShell</span>
+    </div>
+    <div class="code-body"><span class="ps-comment"># ── IF / ELSEIF / ELSE ───────────────────────────────</span>
+<span class="ps-var">$cpuLoad</span> = <span class="ps-num">87</span>
+
+<span class="ps-kw">if</span> (<span class="ps-var">$cpuLoad</span> <span class="ps-op">-ge</span> <span class="ps-num">90</span>) {
+    <span class="ps-cmd">Write-Warning</span> <span class="ps-str">"CRITICAL: CPU at <span class="ps-var">$cpuLoad</span>%"</span>
+} <span class="ps-kw">elseif</span> (<span class="ps-var">$cpuLoad</span> <span class="ps-op">-ge</span> <span class="ps-num">75</span>) {
+    <span class="ps-cmd">Write-Host</span> <span class="ps-str">"WARNING: High CPU usage: <span class="ps-var">$cpuLoad</span>%"</span> <span class="ps-param">-ForegroundColor</span> Yellow
+} <span class="ps-kw">else</span> {
+    <span class="ps-cmd">Write-Host</span> <span class="ps-str">"OK: CPU normal at <span class="ps-var">$cpuLoad</span>%"</span> <span class="ps-param">-ForegroundColor</span> Green
+}
+
+<span class="ps-comment"># ── SWITCH ───────────────────────────────────────────</span>
+<span class="ps-var">$env</span> = <span class="ps-str">"prod"</span>
+<span class="ps-kw">switch</span> (<span class="ps-var">$env</span>) {
+    <span class="ps-str">"dev"</span>     { <span class="ps-var">$rg</span> = <span class="ps-str">"rg-dev-eastus"</span> }
+    <span class="ps-str">"staging"</span> { <span class="ps-var">$rg</span> = <span class="ps-str">"rg-staging-eastus"</span> }
+    <span class="ps-str">"prod"</span>    { <span class="ps-var">$rg</span> = <span class="ps-str">"rg-prod-eastus"</span> }
+    <span class="ps-kw">default</span>   { <span class="ps-kw">throw</span> <span class="ps-str">"Unknown environment: <span class="ps-var">$env</span>"</span> }
+}
+
+<span class="ps-comment"># ── SWITCH WITH REGEX ────────────────────────────────</span>
+<span class="ps-var">$log</span> = <span class="ps-str">"[ERROR] Connection timeout after 30s"</span>
+<span class="ps-kw">switch</span> <span class="ps-param">-Regex</span> (<span class="ps-var">$log</span>) {
+    <span class="ps-str">"\[ERROR\]"</span>   { <span class="ps-cmd">Write-Error</span> <span class="ps-str">"Error found: <span class="ps-var">$_</span>"</span> }
+    <span class="ps-str">"\[WARN\]"</span>    { <span class="ps-cmd">Write-Warning</span> <span class="ps-str">"Warning: <span class="ps-var">$_</span>"</span> }
+    <span class="ps-str">"\[INFO\]"</span>    { <span class="ps-cmd">Write-Verbose</span> <span class="ps-str">"Info: <span class="ps-var">$_</span>"</span> }
+    <span class="ps-kw">default</span>      { <span class="ps-cmd">Write-Host</span> <span class="ps-str">"Unclassified: <span class="ps-var">$_</span>"</span> }
+}
+
+<span class="ps-comment"># ── SWITCH WITH WILDCARD ─────────────────────────────</span>
+<span class="ps-var">$sku</span> = <span class="ps-str">"Standard_D4s_v5"</span>
+<span class="ps-kw">switch</span> <span class="ps-param">-Wildcard</span> (<span class="ps-var">$sku</span>) {
+    <span class="ps-str">"Standard_B*"</span>  { <span class="ps-cmd">Write-Host</span> <span class="ps-str">"Burstable tier"</span> }
+    <span class="ps-str">"Standard_D*"</span>  { <span class="ps-cmd">Write-Host</span> <span class="ps-str">"General purpose"</span> }
+    <span class="ps-str">"Standard_E*"</span>  { <span class="ps-cmd">Write-Host</span> <span class="ps-str">"Memory optimised"</span> }
+    <span class="ps-str">"Standard_F*"</span>  { <span class="ps-cmd">Write-Host</span> <span class="ps-str">"Compute optimised"</span> }
+}</div>
+  </div>
+</section>
+
+<!-- ─── LOOPS ─── -->
+<section class="section" id="loops">
+  <div class="section-header">
+    <span class="section-badge badge-cyan">Level 2</span>
+    <h2>Loops</h2>
+    <p>PowerShell has <code>for</code>, <code>foreach</code>, <code>while</code>, <code>do-while</code>, <code>do-until</code>, and the pipeline's <code>ForEach-Object</code>.</p>
+  </div>
+
+  <div class="code-block">
+    <div class="code-header">
+      <div class="code-header-left"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-filename">loops.ps1</span></div>
+      <span class="code-lang">PowerShell</span>
+    </div>
+    <div class="code-body"><span class="ps-comment"># ── FOREACH (most common) ────────────────────────────</span>
+<span class="ps-var">$vms</span> = <span class="ps-op">@(</span><span class="ps-str">"vm-web-01"</span>, <span class="ps-str">"vm-db-01"</span>, <span class="ps-str">"vm-app-01"</span><span class="ps-op">)</span>
+<span class="ps-kw">foreach</span> (<span class="ps-var">$vm</span> <span class="ps-kw">in</span> <span class="ps-var">$vms</span>) {
+    <span class="ps-cmd">Write-Host</span> <span class="ps-str">"Processing: <span class="ps-var">$vm</span>"</span>
+}
+
+<span class="ps-comment"># ── FOR LOOP ─────────────────────────────────────────</span>
+<span class="ps-kw">for</span> (<span class="ps-var">$i</span> = <span class="ps-num">0</span>; <span class="ps-var">$i</span> <span class="ps-op">-lt</span> <span class="ps-num">5</span>; <span class="ps-var">$i</span>++) {
+    <span class="ps-cmd">Write-Host</span> <span class="ps-str">"Iteration: <span class="ps-var">$i</span>"</span>
+}
+
+<span class="ps-comment"># ── WHILE ────────────────────────────────────────────</span>
+<span class="ps-var">$retries</span> = <span class="ps-num">0</span>
+<span class="ps-kw">while</span> (<span class="ps-var">$retries</span> <span class="ps-op">-lt</span> <span class="ps-num">3</span>) {
+    <span class="ps-cmd">Write-Host</span> <span class="ps-str">"Attempt <span class="ps-var">$($retries + 1)</span>..."</span>
+    <span class="ps-var">$retries</span>++
+}
+
+<span class="ps-comment"># ── DO-UNTIL (poll until condition) ──────────────────</span>
+<span class="ps-kw">do</span> {
+    <span class="ps-var">$status</span> = <span class="ps-cmd">Get-AzVM</span> <span class="ps-param">-Name</span> <span class="ps-str">"my-vm"</span> <span class="ps-param">-ResourceGroupName</span> <span class="ps-str">"rg-prod"</span> |
+               <span class="ps-cmd">Select-Object</span> <span class="ps-param">-ExpandProperty</span> StatusCode
+    <span class="ps-cmd">Start-Sleep</span> <span class="ps-param">-Seconds</span> <span class="ps-num">10</span>
+} <span class="ps-kw">until</span> (<span class="ps-var">$status</span> <span class="ps-op">-eq</span> <span class="ps-str">"OK"</span>)
+
+<span class="ps-comment"># ── FOREACH-OBJECT in PIPELINE ───────────────────────</span>
+<span class="ps-num">1</span>..<span class="ps-num">10</span> | <span class="ps-cmd">ForEach-Object</span> {
+    <span class="ps-cmd">Write-Host</span> <span class="ps-str">"Number: <span class="ps-var">$_</span>"</span>
+}
+
+<span class="ps-comment"># ── PIPELINE FOREACH with BEGIN/PROCESS/END ──────────</span>
+<span class="ps-cmd">Get-Content</span> <span class="ps-str">"servers.txt"</span> | <span class="ps-cmd">ForEach-Object</span> <span class="ps-param">-Begin</span> {
+    <span class="ps-var">$count</span> = <span class="ps-num">0</span>
+    <span class="ps-cmd">Write-Host</span> <span class="ps-str">"Starting batch..."</span>
+} <span class="ps-param">-Process</span> {
+    <span class="ps-var">$count</span>++
+    <span class="ps-cmd">Write-Host</span> <span class="ps-str">"Processing: <span class="ps-var">$_</span>"</span>
+} <span class="ps-param">-End</span> {
+    <span class="ps-cmd">Write-Host</span> <span class="ps-str">"Processed <span class="ps-var">$count</span> items."</span>
+}
+
+<span class="ps-comment"># ── BREAK, CONTINUE ──────────────────────────────────</span>
+<span class="ps-kw">foreach</span> (<span class="ps-var">$n</span> <span class="ps-kw">in</span> <span class="ps-num">1</span>..<span class="ps-num">20</span>) {
+    <span class="ps-kw">if</span> (<span class="ps-var">$n</span> <span class="ps-op">-eq</span> <span class="ps-num">5</span>)  { <span class="ps-kw">continue</span> }   <span class="ps-comment"># skip 5</span>
+    <span class="ps-kw">if</span> (<span class="ps-var">$n</span> <span class="ps-op">-eq</span> <span class="ps-num">10</span>) { <span class="ps-kw">break</span> }      <span class="ps-comment"># stop at 10</span>
+    <span class="ps-cmd">Write-Host</span> <span class="ps-var">$n</span>
+}</div>
+  </div>
+</section>
+
+<!-- ─── FUNCTIONS ─── -->
+<section class="section" id="functions">
+  <div class="section-header">
+    <span class="section-badge badge-blue">Level 3</span>
+    <h2>Functions & Advanced Parameters</h2>
+    <p>PowerShell functions support CmdletBinding for full cmdlet behavior, parameter validation, pipeline input, and help documentation.</p>
+  </div>
+
+  <div class="code-block">
+    <div class="code-header">
+      <div class="code-header-left"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-filename">functions.ps1</span></div>
+      <span class="code-lang">PowerShell</span>
+    </div>
+    <div class="code-body"><span class="ps-comment"># ── BASIC FUNCTION ───────────────────────────────────</span>
+<span class="ps-kw">function</span> <span class="ps-cmd">Get-DiskUsagePercent</span> {
+    <span class="ps-kw">param</span> (
+        <span class="ps-op">[</span><span class="ps-type">string</span><span class="ps-op">]</span><span class="ps-var">$Drive</span> = <span class="ps-str">"C:"</span>
+    )
+    <span class="ps-var">$disk</span> = <span class="ps-cmd">Get-PSDrive</span> <span class="ps-var">$Drive</span>
+    <span class="ps-kw">return</span> [<span class="ps-type">math</span>]::Round((<span class="ps-var">$disk</span>.Used / (<span class="ps-var">$disk</span>.Used + <span class="ps-var">$disk</span>.Free)) * <span class="ps-num">100</span>, <span class="ps-num">2</span>)
+}
+
+<span class="ps-comment"># ── ADVANCED FUNCTION (CmdletBinding) ────────────────</span>
+<span class="ps-kw">function</span> <span class="ps-cmd">New-AzResourceDeployment</span> {
+    <span class="ps-op">[</span><span class="ps-type">CmdletBinding</span>(SupportsShouldProcess = <span class="ps-var">$true</span>)<span class="ps-op">]</span>
+    <span class="ps-kw">param</span> (
+        <span class="ps-comment"># Mandatory, validated</span>
+        <span class="ps-op">[</span><span class="ps-type">Parameter</span>(Mandatory, ValueFromPipeline, HelpMessage = <span class="ps-str">"Resource group name"</span>)<span class="ps-op">]</span>
+        <span class="ps-op">[</span><span class="ps-type">ValidateNotNullOrEmpty</span>()<span class="ps-op">]</span>
+        <span class="ps-op">[</span><span class="ps-type">string</span><span class="ps-op">]</span><span class="ps-var">$ResourceGroupName</span>,
+
+        <span class="ps-comment"># Validated set</span>
+        <span class="ps-op">[</span><span class="ps-type">Parameter</span>(Mandatory)<span class="ps-op">]</span>
+        <span class="ps-op">[</span><span class="ps-type">ValidateSet</span>(<span class="ps-str">"eastus"</span>,<span class="ps-str">"westus2"</span>,<span class="ps-str">"uksouth"</span>,<span class="ps-str">"northeurope"</span>)<span class="ps-op">]</span>
+        <span class="ps-op">[</span><span class="ps-type">string</span><span class="ps-op">]</span><span class="ps-var">$Location</span>,
+
+        <span class="ps-comment"># Pattern validation</span>
+        <span class="ps-op">[</span><span class="ps-type">ValidatePattern</span>(<span class="ps-str">"^[a-z][a-z0-9-]{2,24}$"</span>)<span class="ps-op">]</span>
+        <span class="ps-op">[</span><span class="ps-type">string</span><span class="ps-op">]</span><span class="ps-var">$Name</span>,
+
+        <span class="ps-comment"># Range validation</span>
+        <span class="ps-op">[</span><span class="ps-type">ValidateRange</span>(<span class="ps-num">1</span>, <span class="ps-num">100</span>)<span class="ps-op">]</span>
+        <span class="ps-op">[</span><span class="ps-type">int</span><span class="ps-op">]</span><span class="ps-var">$NodeCount</span> = <span class="ps-num">3</span>,
+
+        <span class="ps-comment"># Switch (boolean flag)</span>
+        <span class="ps-op">[</span><span class="ps-type">switch</span><span class="ps-op">]</span><span class="ps-var">$Force</span>
+    )
+
+    <span class="ps-kw">begin</span> {
+        <span class="ps-cmd">Write-Verbose</span> <span class="ps-str">"Initialising deployment pipeline..."</span>
+    }
+
+    <span class="ps-kw">process</span> {
+        <span class="ps-kw">if</span> (<span class="ps-var">$PSCmdlet</span>.ShouldProcess(<span class="ps-var">$ResourceGroupName</span>, <span class="ps-str">"Deploy resources"</span>)) {
+            <span class="ps-cmd">Write-Host</span> <span class="ps-str">"Deploying to <span class="ps-var">$ResourceGroupName</span> in <span class="ps-var">$Location</span>..."</span>
+            <span class="ps-comment"># ... deployment logic here</span>
+        }
+    }
+
+    <span class="ps-kw">end</span> {
+        <span class="ps-cmd">Write-Verbose</span> <span class="ps-str">"Deployment pipeline complete."</span>
+    }
+}
+
+<span class="ps-comment"># ── CALLING THE FUNCTION ─────────────────────────────</span>
+<span class="ps-cmd">New-AzResourceDeployment</span> <span class="ps-param">-ResourceGroupName</span> <span class="ps-str">"rg-prod-eastus"</span> `
+    <span class="ps-param">-Location</span> <span class="ps-str">"eastus"</span> <span class="ps-param">-Name</span> <span class="ps-str">"my-deployment"</span> <span class="ps-param">-NodeCount</span> <span class="ps-num">5</span> <span class="ps-param">-Verbose</span>
+
+<span class="ps-comment"># Pipeline input</span>
+<span class="ps-op">@(</span><span class="ps-str">"rg-dev"</span>, <span class="ps-str">"rg-staging"</span>, <span class="ps-str">"rg-prod"</span><span class="ps-op">)</span> | <span class="ps-cmd">New-AzResourceDeployment</span> <span class="ps-param">-Location</span> <span class="ps-str">"eastus"</span>
+
+<span class="ps-comment"># WhatIf support (from CmdletBinding SupportsShouldProcess)</span>
+<span class="ps-cmd">New-AzResourceDeployment</span> <span class="ps-param">-ResourceGroupName</span> <span class="ps-str">"rg-prod"</span> <span class="ps-param">-Location</span> <span class="ps-str">"eastus"</span> <span class="ps-param">-WhatIf</span></div>
+  </div>
+</section>
+
+<!-- ─── PIPELINES ─── -->
+<section class="section" id="pipelines">
+  <div class="section-header">
+    <span class="section-badge badge-blue">Level 3</span>
+    <h2>Pipelines & Object Manipulation</h2>
+    <p>The PowerShell pipeline is its superpower — it passes rich .NET objects. Learn to select, filter, sort, and group data with pipeline cmdlets.</p>
+  </div>
+
+  <div class="code-block">
+    <div class="code-header">
+      <div class="code-header-left"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-filename">pipeline-mastery.ps1</span></div>
+      <span class="code-lang">PowerShell</span>
+    </div>
+    <div class="code-body"><span class="ps-comment"># ── SELECT, WHERE, SORT ──────────────────────────────</span>
+<span class="ps-cmd">Get-Process</span> |
+    <span class="ps-cmd">Where-Object</span> { <span class="ps-var">$_</span>.CPU <span class="ps-op">-gt</span> <span class="ps-num">1</span> } |
+    <span class="ps-cmd">Select-Object</span> Name, CPU, WorkingSet |
+    <span class="ps-cmd">Sort-Object</span> CPU <span class="ps-param">-Descending</span> |
+    <span class="ps-cmd">Select-Object</span> <span class="ps-param">-First</span> <span class="ps-num">10</span>
+
+<span class="ps-comment"># ── CALCULATED PROPERTIES ────────────────────────────</span>
+<span class="ps-cmd">Get-Process</span> | <span class="ps-cmd">Select-Object</span> Name,
+    @{ Name = <span class="ps-str">"CPU_s"</span>;   Expression = { [<span class="ps-type">math</span>]::Round(<span class="ps-var">$_</span>.CPU, <span class="ps-num">2</span>) } },
+    @{ Name = <span class="ps-str">"RAM_MB"</span>;  Expression = { [<span class="ps-type">math</span>]::Round(<span class="ps-var">$_</span>.WorkingSet / <span class="ps-num">1MB</span>, <span class="ps-num">1</span>) } } |
+    <span class="ps-cmd">Sort-Object</span> RAM_MB <span class="ps-param">-Descending</span> |
+    <span class="ps-cmd">Format-Table</span> <span class="ps-param">-AutoSize</span>
+
+<span class="ps-comment"># ── GROUP-OBJECT ──────────────────────────────────────</span>
+<span class="ps-cmd">Get-Process</span> | <span class="ps-cmd">Group-Object</span> <span class="ps-param">-Property</span> Company |
+    <span class="ps-cmd">Sort-Object</span> Count <span class="ps-param">-Descending</span> |
+    <span class="ps-cmd">Select-Object</span> Count, Name
+
+<span class="ps-comment"># ── MEASURE-OBJECT ───────────────────────────────────</span>
+<span class="ps-cmd">Get-Process</span> | <span class="ps-cmd">Measure-Object</span> <span class="ps-param">-Property</span> WorkingSet <span class="ps-param">-Sum</span> <span class="ps-param">-Average</span> <span class="ps-param">-Maximum</span>
+
+<span class="ps-comment"># ── COMPARE-OBJECT ───────────────────────────────────</span>
+<span class="ps-var">$before</span> = <span class="ps-cmd">Get-Service</span> | <span class="ps-cmd">Select-Object</span> Name, Status
+<span class="ps-comment"># ... do some changes ...</span>
+<span class="ps-var">$after</span>  = <span class="ps-cmd">Get-Service</span> | <span class="ps-cmd">Select-Object</span> Name, Status
+<span class="ps-cmd">Compare-Object</span> <span class="ps-var">$before</span> <span class="ps-var">$after</span> <span class="ps-param">-Property</span> Name, Status
+
+<span class="ps-comment"># ── PIPELINE CHAIN OPERATORS (PS 7+) ─────────────────</span>
+<span class="ps-cmd">Start-Service</span> <span class="ps-str">"wuauserv"</span> <span class="ps-op">&&</span> <span class="ps-cmd">Write-Host</span> <span class="ps-str">"Service started"</span>
+<span class="ps-cmd">Stop-Service</span>  <span class="ps-str">"invalid"</span>  <span class="ps-op">||</span> <span class="ps-cmd">Write-Host</span> <span class="ps-str">"Failed gracefully"</span>
+
+<span class="ps-comment"># ── BUILDING REPORT OBJECTS ──────────────────────────</span>
+<span class="ps-var">$report</span> = <span class="ps-cmd">Get-ChildItem</span> <span class="ps-str">"C:\Logs"</span> <span class="ps-param">-Recurse</span> <span class="ps-param">-Filter</span> <span class="ps-str">"*.log"</span> |
+    <span class="ps-cmd">Select-Object</span> Name,
+        @{ N=<span class="ps-str">"SizeMB"</span>; E={ [<span class="ps-type">math</span>]::Round(<span class="ps-var">$_</span>.Length/<span class="ps-num">1MB</span>,<span class="ps-num">2</span>) } },
+        LastWriteTime,
+        DirectoryName |
+    <span class="ps-cmd">Sort-Object</span> SizeMB <span class="ps-param">-Descending</span>
+
+<span class="ps-var">$report</span> | <span class="ps-cmd">Export-Csv</span> <span class="ps-str">"log-report.csv"</span> <span class="ps-param">-NoTypeInformation</span>
+<span class="ps-var">$report</span> | <span class="ps-cmd">ConvertTo-Json</span> | <span class="ps-cmd">Out-File</span> <span class="ps-str">"log-report.json"</span></div>
+  </div>
+</section>
+
+<!-- ─── ERROR HANDLING ─── -->
+<section class="section" id="errors">
+  <div class="section-header">
+    <span class="section-badge badge-blue">Level 3</span>
+    <h2>Error Handling</h2>
+    <p>Robust scripts handle both terminating and non-terminating errors using <code>try/catch/finally</code>, <code>-ErrorAction</code>, and custom exceptions.</p>
+  </div>
+
+  <div class="code-block">
+    <div class="code-header">
+      <div class="code-header-left"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-filename">error-handling.ps1</span></div>
+      <span class="code-lang">PowerShell</span>
+    </div>
+    <div class="code-body"><span class="ps-comment"># ── TRY / CATCH / FINALLY ────────────────────────────</span>
+<span class="ps-kw">try</span> {
+    <span class="ps-var">$vm</span> = <span class="ps-cmd">Get-AzVM</span> <span class="ps-param">-Name</span> <span class="ps-str">"non-existent-vm"</span> <span class="ps-param">-ResourceGroupName</span> <span class="ps-str">"rg-prod"</span> <span class="ps-param">-ErrorAction</span> Stop
+    <span class="ps-cmd">Write-Host</span> <span class="ps-str">"Found VM: <span class="ps-var">$($vm.Name)</span>"</span>
+}
+<span class="ps-kw">catch</span> [<span class="ps-type">Microsoft.Rest.Azure.CloudException</span>] {
+    <span class="ps-cmd">Write-Error</span> <span class="ps-str">"Azure API error: <span class="ps-var">$($_.Exception.Message)</span>"</span>
+}
+<span class="ps-kw">catch</span> [<span class="ps-type">System.Management.Automation.ItemNotFoundException</span>] {
+    <span class="ps-cmd">Write-Warning</span> <span class="ps-str">"VM not found."</span>
+}
+<span class="ps-kw">catch</span> {
+    <span class="ps-cmd">Write-Error</span> <span class="ps-str">"Unexpected error: <span class="ps-var">$($_.Exception.GetType().FullName)</span>"</span>
+    <span class="ps-cmd">Write-Error</span> <span class="ps-str">"Message: <span class="ps-var">$($_.Exception.Message)</span>"</span>
+    <span class="ps-cmd">Write-Error</span> <span class="ps-str">"Stack: <span class="ps-var">$($_.ScriptStackTrace)</span>"</span>
+}
+<span class="ps-kw">finally</span> {
+    <span class="ps-cmd">Write-Host</span> <span class="ps-str">"Cleanup complete (always runs)."</span>
+}
+
+<span class="ps-comment"># ── ERRORACTION PREFERENCES ──────────────────────────</span>
+<span class="ps-var">$ErrorActionPreference</span> = <span class="ps-str">"Stop"</span>  <span class="ps-comment"># Make ALL errors terminating</span>
+
+<span class="ps-cmd">Get-Item</span> <span class="ps-str">"C:\missing.txt"</span> <span class="ps-param">-ErrorAction</span> SilentlyContinue
+<span class="ps-cmd">Get-Item</span> <span class="ps-str">"C:\missing.txt"</span> <span class="ps-param">-ErrorAction</span> Inquire
+<span class="ps-cmd">Get-Item</span> <span class="ps-str">"C:\missing.txt"</span> <span class="ps-param">-ErrorAction</span> Stop         <span class="ps-comment"># throw to catch block</span>
+
+<span class="ps-comment"># ── CUSTOM EXCEPTION CLASS ───────────────────────────</span>
+<span class="ps-kw">class</span> <span class="ps-type">DeploymentException</span> : <span class="ps-type">System.Exception</span> {
+    <span class="ps-op">[</span><span class="ps-type">string</span><span class="ps-op">]</span><span class="ps-var">$ResourceGroup</span>
+    <span class="ps-op">[</span><span class="ps-type">string</span><span class="ps-op">]</span><span class="ps-var">$Stage</span>
+
+    <span class="ps-type">DeploymentException</span>(<span class="ps-op">[</span><span class="ps-type">string</span><span class="ps-op">]</span><span class="ps-var">$msg</span>, <span class="ps-op">[</span><span class="ps-type">string</span><span class="ps-op">]</span><span class="ps-var">$rg</span>, <span class="ps-op">[</span><span class="ps-type">string</span><span class="ps-op">]</span><span class="ps-var">$stage</span>) : base(<span class="ps-var">$msg</span>) {
+        <span class="ps-var">$this</span>.ResourceGroup = <span class="ps-var">$rg</span>
+        <span class="ps-var">$this</span>.Stage = <span class="ps-var">$stage</span>
+    }
+}
+
+<span class="ps-kw">try</span> {
+    <span class="ps-kw">throw</span> [<span class="ps-type">DeploymentException</span>]::new(<span class="ps-str">"Failed to deploy"</span>, <span class="ps-str">"rg-prod"</span>, <span class="ps-str">"provision"</span>)
+}
+<span class="ps-kw">catch</span> [<span class="ps-type">DeploymentException</span>] {
+    <span class="ps-cmd">Write-Error</span> <span class="ps-str">"Deploy failed in RG=<span class="ps-var">$($_.Exception.ResourceGroup)</span> Stage=<span class="ps-var">$($_.Exception.Stage)</span>"</span>
+}
+
+<span class="ps-comment"># ── LOGGING HELPER ───────────────────────────────────</span>
+<span class="ps-kw">function</span> <span class="ps-cmd">Write-Log</span> {
+    <span class="ps-kw">param</span>(<span class="ps-op">[</span><span class="ps-type">string</span><span class="ps-op">]</span><span class="ps-var">$Message</span>, <span class="ps-op">[</span><span class="ps-type">ValidateSet</span>(<span class="ps-str">"INFO"</span>,<span class="ps-str">"WARN"</span>,<span class="ps-str">"ERROR"</span>)<span class="ps-op">][</span><span class="ps-type">string</span><span class="ps-op">]</span><span class="ps-var">$Level</span> = <span class="ps-str">"INFO"</span>)
+    <span class="ps-var">$ts</span> = <span class="ps-cmd">Get-Date</span> <span class="ps-param">-Format</span> <span class="ps-str">"yyyy-MM-dd HH:mm:ss"</span>
+    <span class="ps-var">$color</span> = <span class="ps-kw">switch</span>(<span class="ps-var">$Level</span>) { <span class="ps-str">"INFO"</span>{<span class="ps-str">"Cyan"</span>} <span class="ps-str">"WARN"</span>{<span class="ps-str">"Yellow"</span>} <span class="ps-str">"ERROR"</span>{<span class="ps-str">"Red"</span>} }
+    <span class="ps-cmd">Write-Host</span> <span class="ps-str">"[<span class="ps-var">$ts</span>] [<span class="ps-var">$Level</span>] <span class="ps-var">$Message</span>"</span> <span class="ps-param">-ForegroundColor</span> <span class="ps-var">$color</span>
+    <span class="ps-cmd">Add-Content</span> <span class="ps-str">"deploy.log"</span> <span class="ps-str">"[<span class="ps-var">$ts</span>] [<span class="ps-var">$Level</span>] <span class="ps-var">$Message</span>"</span>
+}</div>
+  </div>
+</section>
+
+<!-- ─── FILE SYSTEM ─── -->
+<section class="section" id="filesystem">
+  <div class="section-header">
+    <span class="section-badge badge-blue">Level 3</span>
+    <h2>File System & I/O</h2>
+    <p>PowerShell provides rich file system navigation, reading, writing, and monitoring capabilities through the <code>FileSystem</code> provider.</p>
+  </div>
+
+  <div class="code-block">
+    <div class="code-header">
+      <div class="code-header-left"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-filename">filesystem.ps1</span></div>
+      <span class="code-lang">PowerShell</span>
+    </div>
+    <div class="code-body"><span class="ps-comment"># ── FILE OPERATIONS ──────────────────────────────────</span>
+<span class="ps-cmd">New-Item</span> <span class="ps-param">-Path</span> <span class="ps-str">"C:\scripts\deploy"</span> <span class="ps-param">-ItemType</span> Directory <span class="ps-param">-Force</span>
+<span class="ps-cmd">Set-Content</span>  <span class="ps-str">"config.json"</span> <span class="ps-param">-Value</span> (<span class="ps-var">$config</span> | <span class="ps-cmd">ConvertTo-Json</span>)
+<span class="ps-cmd">Add-Content</span>  <span class="ps-str">"audit.log"</span>   <span class="ps-param">-Value</span> <span class="ps-str">"[INFO] Script started: <span class="ps-var">$(Get-Date)</span>"</span>
+<span class="ps-cmd">Copy-Item</span>    <span class="ps-str">"app.conf"</span> <span class="ps-param">-Destination</span> <span class="ps-str">"backup\app.conf.bak"</span>
+<span class="ps-cmd">Move-Item</span>    <span class="ps-str">"old.log"</span>  <span class="ps-param">-Destination</span> <span class="ps-str">"archive\"</span>
+<span class="ps-cmd">Remove-Item</span>  <span class="ps-str">"temp\*"</span>   <span class="ps-param">-Recurse</span> <span class="ps-param">-Force</span>
+<span class="ps-cmd">Test-Path</span>    <span class="ps-str">"C:\config.json"</span>          <span class="ps-comment"># True/False</span>
+
+<span class="ps-comment"># ── READ / PARSE ─────────────────────────────────────</span>
+<span class="ps-var">$lines</span>   = <span class="ps-cmd">Get-Content</span> <span class="ps-str">"servers.txt"</span>
+<span class="ps-var">$json</span>    = <span class="ps-cmd">Get-Content</span> <span class="ps-str">"config.json"</span> <span class="ps-param">-Raw</span> | <span class="ps-cmd">ConvertFrom-Json</span>
+<span class="ps-var">$csv</span>     = <span class="ps-cmd">Import-Csv</span>  <span class="ps-str">"resources.csv"</span>
+<span class="ps-var">$xml</span>     = <span class="ps-op">[</span><span class="ps-type">xml</span><span class="ps-op">]</span>(<span class="ps-cmd">Get-Content</span> <span class="ps-str">"config.xml"</span>)
+
+<span class="ps-comment"># ── EXPORT ───────────────────────────────────────────</span>
+<span class="ps-var">$data</span> | <span class="ps-cmd">Export-Csv</span>     <span class="ps-str">"report.csv"</span>  <span class="ps-param">-NoTypeInformation</span>
+<span class="ps-var">$data</span> | <span class="ps-cmd">ConvertTo-Json</span> <span class="ps-param">-Depth</span> <span class="ps-num">5</span> | <span class="ps-cmd">Out-File</span> <span class="ps-str">"report.json"</span>
+<span class="ps-var">$data</span> | <span class="ps-cmd">Export-Clixml</span>  <span class="ps-str">"snapshot.xml"</span>  <span class="ps-comment"># full fidelity serialisation</span>
+
+<span class="ps-comment"># ── RECURSIVE SEARCH ────────────────────────────────</span>
+<span class="ps-cmd">Get-ChildItem</span> <span class="ps-param">-Path</span> <span class="ps-str">"C:\inetpub"</span> <span class="ps-param">-Recurse</span> <span class="ps-param">-Filter</span> <span class="ps-str">"web.config"</span> |
+    <span class="ps-cmd">Select-Object</span> FullName, LastWriteTime, Length
+
+<span class="ps-comment"># ── FIND LARGE FILES ─────────────────────────────────</span>
+<span class="ps-cmd">Get-ChildItem</span> <span class="ps-str">"D:\"</span> <span class="ps-param">-Recurse</span> <span class="ps-param">-File</span> |
+    <span class="ps-cmd">Where-Object</span> { <span class="ps-var">$_</span>.Length <span class="ps-op">-gt</span> <span class="ps-num">100MB</span> } |
+    <span class="ps-cmd">Select-Object</span> FullName, @{ N=<span class="ps-str">"GB"</span>; E={ [<span class="ps-type">math</span>]::Round(<span class="ps-var">$_</span>.Length/<span class="ps-num">1GB</span>,<span class="ps-num">3</span>) } } |
+    <span class="ps-cmd">Sort-Object</span> GB <span class="ps-param">-Descending</span>
+
+<span class="ps-comment"># ── ZIP / UNZIP ──────────────────────────────────────</span>
+<span class="ps-cmd">Compress-Archive</span>   <span class="ps-param">-Path</span> <span class="ps-str">"C:\logs\*"</span>        <span class="ps-param">-DestinationPath</span> <span class="ps-str">"logs.zip"</span>
+<span class="ps-cmd">Expand-Archive</span>     <span class="ps-param">-Path</span> <span class="ps-str">"deployment.zip"</span>   <span class="ps-param">-DestinationPath</span> <span class="ps-str">"C:\deploy"</span></div>
+  </div>
+</section>
+
+<!-- ─── CLASSES ─── -->
+<section class="section" id="classes">
+  <div class="section-header">
+    <span class="section-badge badge-purple">Advanced</span>
+    <h2>Classes & Object-Oriented Programming</h2>
+    <p>PowerShell 5+ supports class definitions with constructors, methods, properties, and inheritance.</p>
+  </div>
+
+  <div class="code-block">
+    <div class="code-header">
+      <div class="code-header-left"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-filename">classes.ps1</span></div>
+      <span class="code-lang">PowerShell</span>
+    </div>
+    <div class="code-body"><span class="ps-comment"># ── BASE CLASS ───────────────────────────────────────</span>
+<span class="ps-kw">class</span> <span class="ps-type">AzureResource</span> {
+    <span class="ps-op">[</span><span class="ps-type">string</span><span class="ps-op">]</span>   <span class="ps-var">$Name</span>
+    <span class="ps-op">[</span><span class="ps-type">string</span><span class="ps-op">]</span>   <span class="ps-var">$ResourceGroup</span>
+    <span class="ps-op">[</span><span class="ps-type">string</span><span class="ps-op">]</span>   <span class="ps-var">$Location</span>
+    <span class="ps-op">[</span><span class="ps-type">hashtable</span><span class="ps-op">]</span><span class="ps-var">$Tags</span> = <span class="ps-op">@{}</span>
+
+    <span class="ps-comment"># Constructor</span>
+    <span class="ps-type">AzureResource</span>(<span class="ps-op">[</span><span class="ps-type">string</span><span class="ps-op">]</span><span class="ps-var">$name</span>, <span class="ps-op">[</span><span class="ps-type">string</span><span class="ps-op">]</span><span class="ps-var">$rg</span>, <span class="ps-op">[</span><span class="ps-type">string</span><span class="ps-op">]</span><span class="ps-var">$loc</span>) {
+        <span class="ps-var">$this</span>.Name          = <span class="ps-var">$name</span>
+        <span class="ps-var">$this</span>.ResourceGroup = <span class="ps-var">$rg</span>
+        <span class="ps-var">$this</span>.Location      = <span class="ps-var">$loc</span>
+    }
+
+    <span class="ps-comment"># Method</span>
+    <span class="ps-op">[</span><span class="ps-type">string</span><span class="ps-op">]</span> GetResourceId() {
+        <span class="ps-kw">return</span> <span class="ps-str">"/subscriptions/xxx/resourceGroups/<span class="ps-var">$($this.ResourceGroup)</span>/providers/res/<span class="ps-var">$($this.Name)</span>"</span>
+    }
+
+    <span class="ps-comment"># Static method</span>
+    <span class="ps-kw">static</span> <span class="ps-op">[</span><span class="ps-type">bool</span><span class="ps-op">]</span> ValidateName(<span class="ps-op">[</span><span class="ps-type">string</span><span class="ps-op">]</span><span class="ps-var">$name</span>) {
+        <span class="ps-kw">return</span> <span class="ps-var">$name</span> <span class="ps-op">-match</span> <span class="ps-str">'^[a-z][a-z0-9-]{1,62}[a-z0-9]$'</span>
+    }
+}
+
+<span class="ps-comment"># ── DERIVED CLASS ────────────────────────────────────</span>
+<span class="ps-kw">class</span> <span class="ps-type">VirtualMachine</span> : <span class="ps-type">AzureResource</span> {
+    <span class="ps-op">[</span><span class="ps-type">string</span><span class="ps-op">]</span><span class="ps-var">$Size</span>
+    <span class="ps-op">[</span><span class="ps-type">string</span><span class="ps-op">]</span><span class="ps-var">$OS</span>
+    <span class="ps-op">[</span><span class="ps-type">bool</span><span class="ps-op">]</span>  <span class="ps-var">$IsRunning</span>
+
+    <span class="ps-type">VirtualMachine</span>(<span class="ps-op">[</span><span class="ps-type">string</span><span class="ps-op">]</span><span class="ps-var">$name</span>, <span class="ps-op">[</span><span class="ps-type">string</span><span class="ps-op">]</span><span class="ps-var">$rg</span>, <span class="ps-op">[</span><span class="ps-type">string</span><span class="ps-op">]</span><span class="ps-var">$loc</span>, <span class="ps-op">[</span><span class="ps-type">string</span><span class="ps-op">]</span><span class="ps-var">$size</span>) :
+        base(<span class="ps-var">$name</span>, <span class="ps-var">$rg</span>, <span class="ps-var">$loc</span>) {
+        <span class="ps-var">$this</span>.Size = <span class="ps-var">$size</span>
+    }
+
+    <span class="ps-op">[</span><span class="ps-type">void</span><span class="ps-op">]</span> Start() {
+        <span class="ps-cmd">Start-AzVM</span> <span class="ps-param">-Name</span> <span class="ps-var">$this</span>.Name <span class="ps-param">-ResourceGroupName</span> <span class="ps-var">$this</span>.ResourceGroup
+        <span class="ps-var">$this</span>.IsRunning = <span class="ps-var">$true</span>
+    }
+
+    <span class="ps-op">[</span><span class="ps-type">string</span><span class="ps-op">]</span> ToString() {
+        <span class="ps-kw">return</span> <span class="ps-str">"VM[<span class="ps-var">$($this.Name)</span>] <span class="ps-var">$($this.Size)</span> @ <span class="ps-var">$($this.Location)</span>"</span>
+    }
+}
+
+<span class="ps-comment"># ── USAGE ────────────────────────────────────────────</span>
+<span class="ps-var">$vm</span> = [<span class="ps-type">VirtualMachine</span>]::new(<span class="ps-str">"prod-web-01"</span>, <span class="ps-str">"rg-prod"</span>, <span class="ps-str">"eastus"</span>, <span class="ps-str">"Standard_D4s_v3"</span>)
+<span class="ps-var">$vm</span>.Tags = <span class="ps-op">@{</span> env = <span class="ps-str">"prod"</span>; team = <span class="ps-str">"platform"</span> <span class="ps-op">}</span>
+[<span class="ps-type">AzureResource</span>]::ValidateName(<span class="ps-str">"prod-web-01"</span>)   <span class="ps-comment"># True</span>
+<span class="ps-var">$vm</span>.ToString()</div>
+  </div>
+</section>
+
+<!-- ─── JOBS ─── -->
+<section class="section" id="jobs">
+  <div class="section-header">
+    <span class="section-badge badge-purple">Advanced</span>
+    <h2>Background Jobs & Runspaces</h2>
+    <p>Run scripts asynchronously using background jobs or high-performance runspaces for parallel processing.</p>
+  </div>
+
+  <div class="code-block">
+    <div class="code-header">
+      <div class="code-header-left"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-filename">parallel-jobs.ps1</span></div>
+      <span class="code-lang">PowerShell</span>
+    </div>
+    <div class="code-body"><span class="ps-comment"># ── BACKGROUND JOBS ──────────────────────────────────</span>
+<span class="ps-var">$job</span> = <span class="ps-cmd">Start-Job</span> <span class="ps-param">-ScriptBlock</span> {
+    <span class="ps-cmd">Start-Sleep</span> <span class="ps-num">5</span>
+    <span class="ps-kw">return</span> <span class="ps-str">"Job complete at <span class="ps-var">$(Get-Date)</span>"</span>
+}
+
+<span class="ps-cmd">Wait-Job</span>    <span class="ps-var">$job</span>
+<span class="ps-cmd">Receive-Job</span> <span class="ps-var">$job</span>
+<span class="ps-cmd">Remove-Job</span>  <span class="ps-var">$job</span>
+
+<span class="ps-comment"># ── FOREACH-OBJECT -PARALLEL (PS 7+) ─────────────────</span>
+<span class="ps-var">$servers</span> = <span class="ps-op">@(</span><span class="ps-str">"server1"</span>, <span class="ps-str">"server2"</span>, <span class="ps-str">"server3"</span>, <span class="ps-str">"server4"</span><span class="ps-op">)</span>
+
+<span class="ps-var">$results</span> = <span class="ps-var">$servers</span> | <span class="ps-cmd">ForEach-Object</span> <span class="ps-param">-Parallel</span> {
+    <span class="ps-var">$server</span> = <span class="ps-var">$_</span>
+    <span class="ps-kw">try</span> {
+        <span class="ps-var">$ping</span> = <span class="ps-cmd">Test-Connection</span> <span class="ps-var">$server</span> <span class="ps-param">-Count</span> <span class="ps-num">2</span> <span class="ps-param">-Quiet</span>
+        <span class="ps-op">[</span><span class="ps-type">PSCustomObject</span><span class="ps-op">]@{</span> Server = <span class="ps-var">$server</span>; Online = <span class="ps-var">$ping</span> <span class="ps-op">}</span>
+    } <span class="ps-kw">catch</span> {
+        <span class="ps-op">[</span><span class="ps-type">PSCustomObject</span><span class="ps-op">]@{</span> Server = <span class="ps-var">$server</span>; Online = <span class="ps-var">$false</span> <span class="ps-op">}</span>
+    }
+} <span class="ps-param">-ThrottleLimit</span> <span class="ps-num">10</span>
+
+<span class="ps-var">$results</span> | <span class="ps-cmd">Format-Table</span>
+
+<span class="ps-comment"># ── RUNSPACE POOL (maximum performance) ──────────────</span>
+<span class="ps-var">$pool</span> = [<span class="ps-type">RunspaceFactory</span>]::CreateRunspacePool(<span class="ps-num">1</span>, <span class="ps-num">20</span>)
+<span class="ps-var">$pool</span>.Open()
+
+<span class="ps-var">$tasks</span> = <span class="ps-kw">foreach</span> (<span class="ps-var">$ip</span> <span class="ps-kw">in</span> <span class="ps-str">"10.0.0"</span> | <span class="ps-cmd">ForEach-Object</span> { <span class="ps-num">1</span>..<span class="ps-num">50</span> | <span class="ps-cmd">ForEach-Object</span> { <span class="ps-str">"<span class="ps-var">$using:ip</span>.<span class="ps-var">$_</span>" </span> }}) {
+    <span class="ps-var">$ps</span> = [<span class="ps-type">PowerShell</span>]::Create().AddScript({
+        <span class="ps-kw">param</span>(<span class="ps-var">$target</span>)
+        <span class="ps-op">[</span><span class="ps-type">PSCustomObject</span><span class="ps-op">]@{</span> IP = <span class="ps-var">$target</span>; Alive = (<span class="ps-cmd">Test-Connection</span> <span class="ps-var">$target</span> <span class="ps-param">-Count</span> <span class="ps-num">1</span> <span class="ps-param">-Quiet</span>) <span class="ps-op">}</span>
+    }).AddArgument(<span class="ps-var">$ip</span>)
+    <span class="ps-var">$ps</span>.RunspacePool = <span class="ps-var">$pool</span>
+    <span class="ps-op">[</span><span class="ps-type">PSCustomObject</span><span class="ps-op">]@{</span> PS = <span class="ps-var">$ps</span>; Handle = <span class="ps-var">$ps</span>.BeginInvoke() <span class="ps-op">}</span>
+}
+
+<span class="ps-var">$allResults</span> = <span class="ps-kw">foreach</span> (<span class="ps-var">$t</span> <span class="ps-kw">in</span> <span class="ps-var">$tasks</span>) { <span class="ps-var">$t</span>.PS.EndInvoke(<span class="ps-var">$t</span>.Handle) }
+<span class="ps-var">$pool</span>.Close()</div>
+  </div>
+</section>
+
+<!-- ─── AZURE CONNECT ─── -->
+<section class="section" id="az-connect">
+  <div class="section-header">
+    <span class="section-badge badge-orange">Azure</span>
+    <h2>Azure Az Module & Authentication</h2>
+    <p>Install the Az module and authenticate using service principals, managed identities, or interactive login for Azure automation.</p>
+  </div>
+
+  <div class="callout callout-info">
+    <span class="callout-icon">💡</span>
+    <div class="callout-body">Always use <strong>Managed Identity</strong> for runbooks running inside Azure Automation. Use <strong>Service Principals</strong> for CI/CD pipelines and external systems.</div>
+  </div>
+
+  <div class="code-block">
+    <div class="code-header">
+      <div class="code-header-left"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-filename">az-auth.ps1</span></div>
+      <span class="code-lang">PowerShell</span>
+    </div>
+    <div class="code-body"><span class="ps-comment"># ── INSTALL AZ MODULE ─────────────────────────────────</span>
+<span class="ps-cmd">Install-Module</span> <span class="ps-param">-Name</span> Az <span class="ps-param">-Scope</span> CurrentUser <span class="ps-param">-Repository</span> PSGallery <span class="ps-param">-Force</span>
+<span class="ps-cmd">Update-Module</span>  <span class="ps-param">-Name</span> Az
+<span class="ps-cmd">Get-Module</span>     <span class="ps-param">-Name</span> <span class="ps-str">"Az.*"</span> <span class="ps-param">-ListAvailable</span>
+
+<span class="ps-comment"># ── INTERACTIVE LOGIN ─────────────────────────────────</span>
+<span class="ps-cmd">Connect-AzAccount</span>
+<span class="ps-cmd">Connect-AzAccount</span> <span class="ps-param">-TenantId</span> <span class="ps-str">"xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"</span>
+<span class="ps-cmd">Set-AzContext</span>    <span class="ps-param">-SubscriptionId</span> <span class="ps-str">"your-sub-id"</span>
+
+<span class="ps-comment"># ── SERVICE PRINCIPAL ─────────────────────────────────</span>
+<span class="ps-var">$tenantId</span> = <span class="ps-str">"xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"</span>
+<span class="ps-var">$appId</span>    = <span class="ps-str">"xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"</span>
+<span class="ps-var">$secret</span>   = <span class="ps-cmd">ConvertTo-SecureString</span> <span class="ps-str">"client-secret-here"</span> <span class="ps-param">-AsPlainText</span> <span class="ps-param">-Force</span>
+<span class="ps-var">$cred</span>     = <span class="ps-cmd">New-Object</span> <span class="ps-type">System.Management.Automation.PSCredential</span>(<span class="ps-var">$appId</span>, <span class="ps-var">$secret</span>)
+
+<span class="ps-cmd">Connect-AzAccount</span> <span class="ps-param">-ServicePrincipal</span> <span class="ps-param">-Credential</span> <span class="ps-var">$cred</span> <span class="ps-param">-Tenant</span> <span class="ps-var">$tenantId</span>
+
+<span class="ps-comment"># ── MANAGED IDENTITY (in Automation Runbook) ─────────</span>
+<span class="ps-cmd">Connect-AzAccount</span> <span class="ps-param">-Identity</span>
+<span class="ps-comment"># or with specific managed identity client ID:</span>
+<span class="ps-cmd">Connect-AzAccount</span> <span class="ps-param">-Identity</span> <span class="ps-param">-AccountId</span> <span class="ps-str">"managed-identity-client-id"</span>
+
+<span class="ps-comment"># ── CONTEXT MANAGEMENT ────────────────────────────────</span>
+<span class="ps-cmd">Get-AzContext</span>                           <span class="ps-comment"># current context</span>
+<span class="ps-cmd">Get-AzSubscription</span>                      <span class="ps-comment"># list subscriptions</span>
+<span class="ps-cmd">Select-AzSubscription</span> <span class="ps-param">-SubscriptionName</span> <span class="ps-str">"Production"</span>
+<span class="ps-cmd">Save-AzContext</span>    <span class="ps-param">-Path</span> <span class="ps-str">"~/.azure/ctx.json"</span>
+<span class="ps-cmd">Import-AzContext</span>  <span class="ps-param">-Path</span> <span class="ps-str">"~/.azure/ctx.json"</span>
+
+<span class="ps-comment"># ── REST API via Az ───────────────────────────────────</span>
+<span class="ps-var">$token</span> = (<span class="ps-cmd">Get-AzAccessToken</span>).Token
+<span class="ps-var">$headers</span> = <span class="ps-op">@{</span> Authorization = <span class="ps-str">"Bearer <span class="ps-var">$token</span>"</span> <span class="ps-op">}</span>
+<span class="ps-cmd">Invoke-RestMethod</span> <span class="ps-param">-Uri</span> <span class="ps-str">"https://management.azure.com/subscriptions?api-version=2022-09-01"</span> `
+    <span class="ps-param">-Headers</span> <span class="ps-var">$headers</span></div>
+  </div>
+</section>
+
+<!-- ─── AZURE RESOURCES ─── -->
+<section class="section" id="az-resources">
+  <div class="section-header">
+    <span class="section-badge badge-orange">Azure</span>
+    <h2>Azure Resource Management</h2>
+    <p>Create, query, update, and delete Azure resources: VMs, storage accounts, networking, Key Vault, and more.</p>
+  </div>
+
+  <div class="code-block">
+    <div class="code-header">
+      <div class="code-header-left"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-filename">az-resources.ps1</span></div>
+      <span class="code-lang">PowerShell</span>
+    </div>
+    <div class="code-body"><span class="ps-comment"># ── RESOURCE GROUPS ───────────────────────────────────</span>
+<span class="ps-cmd">New-AzResourceGroup</span>    <span class="ps-param">-Name</span> <span class="ps-str">"rg-prod-eastus"</span> <span class="ps-param">-Location</span> <span class="ps-str">"eastus"</span>
+<span class="ps-cmd">Get-AzResourceGroup</span>    <span class="ps-param">-Name</span> <span class="ps-str">"rg-prod*"</span>
+<span class="ps-cmd">Remove-AzResourceGroup</span> <span class="ps-param">-Name</span> <span class="ps-str">"rg-test"</span> <span class="ps-param">-Force</span> <span class="ps-param">-AsJob</span>
+
+<span class="ps-comment"># ── VIRTUAL MACHINES ──────────────────────────────────</span>
+<span class="ps-var">$vmConfig</span> = <span class="ps-cmd">New-AzVMConfig</span> <span class="ps-param">-VMName</span> <span class="ps-str">"web-01"</span> <span class="ps-param">-VMSize</span> <span class="ps-str">"Standard_D2s_v3"</span>
+<span class="ps-cmd">Get-AzVM</span>               <span class="ps-param">-ResourceGroupName</span> <span class="ps-str">"rg-prod"</span>
+<span class="ps-cmd">Start-AzVM</span>             <span class="ps-param">-Name</span> <span class="ps-str">"web-01"</span>   <span class="ps-param">-ResourceGroupName</span> <span class="ps-str">"rg-prod"</span>
+<span class="ps-cmd">Stop-AzVM</span>              <span class="ps-param">-Name</span> <span class="ps-str">"web-01"</span>   <span class="ps-param">-ResourceGroupName</span> <span class="ps-str">"rg-prod"</span> <span class="ps-param">-Force</span>
+<span class="ps-cmd">Get-AzVM</span> <span class="ps-param">-Status</span> | <span class="ps-cmd">Select-Object</span> Name, PowerState | <span class="ps-cmd">Format-Table</span>
+
+<span class="ps-comment"># ── STORAGE ACCOUNTS ──────────────────────────────────</span>
+<span class="ps-var">$sa</span> = <span class="ps-cmd">New-AzStorageAccount</span> <span class="ps-param">-ResourceGroupName</span> <span class="ps-str">"rg-prod"</span> `
+    <span class="ps-param">-Name</span> <span class="ps-str">"mystorageacct"</span> <span class="ps-param">-Location</span> <span class="ps-str">"eastus"</span> `
+    <span class="ps-param">-SkuName</span> <span class="ps-str">"Standard_LRS"</span> <span class="ps-param">-Kind</span> <span class="ps-str">"StorageV2"</span>
+
+<span class="ps-var">$ctx</span>  = <span class="ps-var">$sa</span>.Context
+<span class="ps-cmd">New-AzStorageContainer</span> <span class="ps-param">-Name</span> <span class="ps-str">"deployments"</span> <span class="ps-param">-Context</span> <span class="ps-var">$ctx</span>
+<span class="ps-cmd">Set-AzStorageBlobContent</span> <span class="ps-param">-File</span> <span class="ps-str">"./arm-template.json"</span> <span class="ps-param">-Container</span> <span class="ps-str">"deployments"</span> <span class="ps-param">-Context</span> <span class="ps-var">$ctx</span>
+
+<span class="ps-comment"># ── KEY VAULT ─────────────────────────────────────────</span>
+<span class="ps-var">$secret</span> = <span class="ps-cmd">Get-AzKeyVaultSecret</span> <span class="ps-param">-VaultName</span> <span class="ps-str">"kv-prod-eastus"</span> <span class="ps-param">-Name</span> <span class="ps-str">"db-password"</span>
+<span class="ps-var">$plainText</span> = <span class="ps-var">$secret</span>.SecretValue | <span class="ps-cmd">ConvertFrom-SecureString</span> <span class="ps-param">-AsPlainText</span>
+
+<span class="ps-cmd">Set-AzKeyVaultSecret</span> <span class="ps-param">-VaultName</span> <span class="ps-str">"kv-prod-eastus"</span> <span class="ps-param">-Name</span> <span class="ps-str">"api-key"</span> `
+    <span class="ps-param">-SecretValue</span> (<span class="ps-cmd">ConvertTo-SecureString</span> <span class="ps-str">"my-secret"</span> <span class="ps-param">-AsPlainText</span> <span class="ps-param">-Force</span>)
+
+<span class="ps-comment"># ── TAGGING AT SCALE ─────────────────────────────────</span>
+<span class="ps-cmd">Get-AzResource</span> <span class="ps-param">-ResourceGroupName</span> <span class="ps-str">"rg-prod"</span> | <span class="ps-cmd">ForEach-Object</span> {
+    <span class="ps-var">$tags</span> = <span class="ps-var">$_</span>.Tags
+    <span class="ps-var">$tags</span><span class="ps-op">[</span><span class="ps-str">"Environment"</span><span class="ps-op">]</span> = <span class="ps-str">"Production"</span>
+    <span class="ps-var">$tags</span><span class="ps-op">[</span><span class="ps-str">"CostCenter"</span><span class="ps-op">]</span>   = <span class="ps-str">"CC-001"</span>
+    <span class="ps-cmd">Update-AzTag</span> <span class="ps-param">-ResourceId</span> <span class="ps-var">$_</span>.Id <span class="ps-param">-Tag</span> <span class="ps-var">$tags</span> <span class="ps-param">-Operation</span> Merge
+}
+
+<span class="ps-comment"># ── ARM TEMPLATE DEPLOYMENT ───────────────────────────</span>
+<span class="ps-cmd">New-AzResourceGroupDeployment</span> `
+    <span class="ps-param">-ResourceGroupName</span> <span class="ps-str">"rg-prod"</span> `
+    <span class="ps-param">-TemplateFile</span>      <span class="ps-str">"./main.bicep"</span> `
+    <span class="ps-param">-TemplateParameterFile</span> <span class="ps-str">"./params.prod.json"</span> `
+    <span class="ps-param">-Verbose</span></div>
+  </div>
+</section>
+
+<!-- ─── RUNBOOKS ─── -->
+<section class="section" id="runbooks">
+  <div class="section-header">
+    <span class="section-badge badge-orange">Azure Automation</span>
+    <h2>Azure Automation Runbooks</h2>
+    <p>Runbooks are scripts that run in Azure Automation accounts — perfect for scheduled tasks, event-driven workflows, and cloud management automation.</p>
+  </div>
+
+  <div class="card-grid">
+    <div class="card"><div class="card-icon">📋</div><h4>PowerShell Runbook</h4><p>Standard runbook type. Runs synchronously, returns output. Best for most automation tasks.</p></div>
+    <div class="card"><div class="card-icon">⚡</div><h4>PowerShell Workflow</h4><p>Supports checkpoints and parallel execution. Good for long-running, resumable tasks.</p></div>
+    <div class="card"><div class="card-icon">🐍</div><h4>Python Runbook</h4><p>Python 2/3 support for teams preferring Python or using Python-native libraries.</p></div>
+    <div class="card"><div class="card-icon">🔷</div><h4>Graphical Runbook</h4><p>Visual drag-and-drop designer for non-developers. Converts to PowerShell under the hood.</p></div>
+  </div>
+
+  <div class="callout callout-tip">
+    <span class="callout-icon">✅</span>
+    <div class="callout-body"><strong>Best Practice:</strong> Enable System-Assigned Managed Identity on your Automation Account and assign it the least-privilege RBAC roles. Never store credentials as plaintext — use the Automation Credential asset or Key Vault.</div>
+  </div>
+
+  <div class="code-block">
+    <div class="code-header">
+      <div class="code-header-left"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-filename">runbook-template.ps1</span></div>
+      <span class="code-lang">Runbook Template</span>
+    </div>
+    <div class="code-body"><span class="ps-comment">####################################################################
+# Runbook: Start-VMsOnSchedule
+# Description: Start tagged VMs on a schedule
+# Author:  Platform Engineering
+# Version: 1.0.0
+# Required Modules: Az.Accounts, Az.Compute
+####################################################################</span>
+
+<span class="ps-kw">param</span> (
+    <span class="ps-op">[</span><span class="ps-type">Parameter</span>(Mandatory = <span class="ps-var">$false</span>)<span class="ps-op">]</span>
+    <span class="ps-op">[</span><span class="ps-type">string</span><span class="ps-op">]</span><span class="ps-var">$ResourceGroupName</span> = <span class="ps-str">"rg-prod-eastus"</span>,
+
+    <span class="ps-op">[</span><span class="ps-type">Parameter</span>(Mandatory = <span class="ps-var">$false</span>)<span class="ps-op">]</span>
+    <span class="ps-op">[</span><span class="ps-type">string</span><span class="ps-op">]</span><span class="ps-var">$TagKey</span>   = <span class="ps-str">"AutoStart"</span>,
+
+    <span class="ps-op">[</span><span class="ps-type">Parameter</span>(Mandatory = <span class="ps-var">$false</span>)<span class="ps-op">]</span>
+    <span class="ps-op">[</span><span class="ps-type">string</span><span class="ps-op">]</span><span class="ps-var">$TagValue</span> = <span class="ps-str">"true"</span>
+)
+
+<span class="ps-comment">#region INIT</span>
+<span class="ps-var">$ErrorActionPreference</span> = <span class="ps-str">"Stop"</span>
+<span class="ps-var">$VerbosePreference</span>     = <span class="ps-str">"Continue"</span>
+
+<span class="ps-cmd">Write-Output</span> <span class="ps-str">"[$(Get-Date -f 'yyyy-MM-dd HH:mm:ss')] Runbook started"</span>
+
+<span class="ps-comment"># Authenticate via Managed Identity</span>
+<span class="ps-kw">try</span> {
+    <span class="ps-cmd">Connect-AzAccount</span> <span class="ps-param">-Identity</span>
+    <span class="ps-cmd">Write-Output</span> <span class="ps-str">"Connected via Managed Identity"</span>
+} <span class="ps-kw">catch</span> {
+    <span class="ps-cmd">Write-Error</span> <span class="ps-str">"Auth failed: <span class="ps-var">$($_.Exception.Message)</span>"</span>
+    <span class="ps-kw">throw</span>
+}
+<span class="ps-comment">#endregion</span>
+
+<span class="ps-comment">#region MAIN</span>
+<span class="ps-var">$vmsToStart</span> = <span class="ps-cmd">Get-AzVM</span> <span class="ps-param">-ResourceGroupName</span> <span class="ps-var">$ResourceGroupName</span> |
+    <span class="ps-cmd">Where-Object</span> { <span class="ps-var">$_</span>.Tags.<span class="ps-var">$TagKey</span> <span class="ps-op">-eq</span> <span class="ps-var">$TagValue</span> }
+
+<span class="ps-cmd">Write-Output</span> <span class="ps-str">"Found <span class="ps-var">$($vmsToStart.Count)</span> VMs tagged for auto-start"</span>
+
+<span class="ps-var">$jobs</span> = <span class="ps-kw">foreach</span> (<span class="ps-var">$vm</span> <span class="ps-kw">in</span> <span class="ps-var">$vmsToStart</span>) {
+    <span class="ps-cmd">Write-Output</span> <span class="ps-str">"  → Starting: <span class="ps-var">$($vm.Name)</span>"</span>
+    <span class="ps-cmd">Start-AzVM</span> <span class="ps-param">-Name</span> <span class="ps-var">$vm</span>.Name <span class="ps-param">-ResourceGroupName</span> <span class="ps-var">$vm</span>.ResourceGroupName <span class="ps-param">-NoWait</span> <span class="ps-param">-AsJob</span>
+}
+
+<span class="ps-cmd">Write-Output</span> <span class="ps-str">"Waiting for all start operations..."</span>
+<span class="ps-var">$jobs</span> | <span class="ps-cmd">Wait-Job</span> | <span class="ps-cmd">Receive-Job</span>
+
+<span class="ps-cmd">Write-Output</span> <span class="ps-str">"[$(Get-Date -f 'yyyy-MM-dd HH:mm:ss')] All VMs started successfully"</span>
+<span class="ps-comment">#endregion</span></div>
+  </div>
+</section>
+
+<!-- ─── RUNBOOK EXAMPLES ─── -->
+<section class="section" id="runbook-examples">
+  <div class="section-header">
+    <span class="section-badge badge-orange">Azure Automation</span>
+    <h2>Real-World Runbook Examples</h2>
+    <p>Production-ready runbooks for common automation scenarios — VM lifecycle, cost management, security, and compliance.</p>
+  </div>
+
+  <h3>Example 1 — Auto-Scale AKS Node Pool</h3>
+  <div class="code-block">
+    <div class="code-header">
+      <div class="code-header-left"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-filename">Scale-AksNodePool.ps1</span></div>
+      <span class="code-lang">Runbook</span>
+    </div>
+    <div class="code-body"><span class="ps-kw">param</span>(
+    <span class="ps-op">[</span><span class="ps-type">string</span><span class="ps-op">]</span><span class="ps-var">$ClusterName</span>    = <span class="ps-str">"aks-prod-eastus"</span>,
+    <span class="ps-op">[</span><span class="ps-type">string</span><span class="ps-op">]</span><span class="ps-var">$ResourceGroup</span>  = <span class="ps-str">"rg-aks-prod"</span>,
+    <span class="ps-op">[</span><span class="ps-type">string</span><span class="ps-op">]</span><span class="ps-var">$NodePoolName</span>   = <span class="ps-str">"agentpool"</span>,
+    <span class="ps-op">[</span><span class="ps-type">ValidateRange</span>(<span class="ps-num">1</span>,<span class="ps-num">50</span>)<span class="ps-op">][</span><span class="ps-type">int</span><span class="ps-op">]</span><span class="ps-var">$NodeCount</span> = <span class="ps-num">3</span>
+)
+
+<span class="ps-cmd">Connect-AzAccount</span> <span class="ps-param">-Identity</span>
+
+<span class="ps-var">$cluster</span> = <span class="ps-cmd">Get-AzAksCluster</span> <span class="ps-param">-Name</span> <span class="ps-var">$ClusterName</span> <span class="ps-param">-ResourceGroupName</span> <span class="ps-var">$ResourceGroup</span>
+<span class="ps-var">$pool</span>    = <span class="ps-var">$cluster</span>.AgentPoolProfiles | <span class="ps-cmd">Where-Object</span> { <span class="ps-var">$_</span>.Name <span class="ps-op">-eq</span> <span class="ps-var">$NodePoolName</span> }
+
+<span class="ps-var">$current</span> = <span class="ps-var">$pool</span>.Count
+<span class="ps-cmd">Write-Output</span> <span class="ps-str">"Current node count: <span class="ps-var">$current</span>  →  Target: <span class="ps-var">$NodeCount</span>"</span>
+
+<span class="ps-kw">if</span> (<span class="ps-var">$current</span> <span class="ps-op">-ne</span> <span class="ps-var">$NodeCount</span>) {
+    <span class="ps-cmd">Set-AzAksCluster</span> <span class="ps-param">-InputObject</span> <span class="ps-var">$cluster</span> `
+        <span class="ps-param">-NodePoolName</span> <span class="ps-var">$NodePoolName</span> <span class="ps-param">-NodeCount</span> <span class="ps-var">$NodeCount</span>
+    <span class="ps-cmd">Write-Output</span> <span class="ps-str">"Scaled to <span class="ps-var">$NodeCount</span> nodes."</span>
+} <span class="ps-kw">else</span> {
+    <span class="ps-cmd">Write-Output</span> <span class="ps-str">"Already at desired count. No change needed."</span>
+}</div>
+  </div>
+
+  <h3>Example 2 — Clean Up Old Snapshots</h3>
+  <div class="code-block">
+    <div class="code-header">
+      <div class="code-header-left"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-filename">Remove-OldSnapshots.ps1</span></div>
+      <span class="code-lang">Runbook</span>
+    </div>
+    <div class="code-body"><span class="ps-kw">param</span>(
+    <span class="ps-op">[</span><span class="ps-type">int</span><span class="ps-op">]</span>   <span class="ps-var">$RetentionDays</span>  = <span class="ps-num">30</span>,
+    <span class="ps-op">[</span><span class="ps-type">switch</span><span class="ps-op">]</span><span class="ps-var">$WhatIf</span>
+)
+
+<span class="ps-cmd">Connect-AzAccount</span> <span class="ps-param">-Identity</span>
+
+<span class="ps-var">$cutoff</span>    = (<span class="ps-cmd">Get-Date</span>).AddDays(<span class="ps-op">-</span><span class="ps-var">$RetentionDays</span>)
+<span class="ps-var">$snapshots</span> = <span class="ps-cmd">Get-AzSnapshot</span> | <span class="ps-cmd">Where-Object</span> { <span class="ps-var">$_</span>.TimeCreated <span class="ps-op">-lt</span> <span class="ps-var">$cutoff</span> }
+
+<span class="ps-cmd">Write-Output</span> <span class="ps-str">"Found <span class="ps-var">$($snapshots.Count)</span> snapshots older than <span class="ps-var">$RetentionDays</span> days"</span>
+
+<span class="ps-var">$totalGB</span> = (<span class="ps-var">$snapshots</span> | <span class="ps-cmd">Measure-Object</span> <span class="ps-param">-Property</span> DiskSizeGB <span class="ps-param">-Sum</span>).Sum
+<span class="ps-cmd">Write-Output</span> <span class="ps-str">"Space to reclaim: <span class="ps-var">$totalGB</span> GB"</span>
+
+<span class="ps-kw">foreach</span> (<span class="ps-var">$snap</span> <span class="ps-kw">in</span> <span class="ps-var">$snapshots</span>) {
+    <span class="ps-cmd">Write-Output</span> <span class="ps-str">"  <span class="ps-kw">[$($WhatIf ? 'WHATIF' : 'DELETE')]</span> <span class="ps-var">$($snap.Name)</span>  <span class="ps-var">$($snap.DiskSizeGB)</span>GB  <span class="ps-var">$($snap.TimeCreated:yyyy-MM-dd)</span>"</span>
+    <span class="ps-kw">if</span> (<span class="ps-op">-not</span> <span class="ps-var">$WhatIf</span>) {
+        <span class="ps-cmd">Remove-AzSnapshot</span> <span class="ps-param">-ResourceGroupName</span> <span class="ps-var">$snap</span>.ResourceGroupName `
+            <span class="ps-param">-SnapshotName</span> <span class="ps-var">$snap</span>.Name <span class="ps-param">-Force</span>
+    }
+}
+<span class="ps-cmd">Write-Output</span> <span class="ps-str">"Done."</span></div>
+  </div>
+
+  <h3>Example 3 — Audit NSG Rules & Alert on Open Ports</h3>
+  <div class="code-block">
+    <div class="code-header">
+      <div class="code-header-left"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-filename">Audit-NsgOpenPorts.ps1</span></div>
+      <span class="code-lang">Runbook</span>
+    </div>
+    <div class="code-body"><span class="ps-kw">param</span>(
+    <span class="ps-op">[</span><span class="ps-type">string</span><span class="ps-op">[]</span><span class="ps-op">]</span><span class="ps-var">$DangerousPorts</span> = <span class="ps-op">@(</span><span class="ps-str">"22"</span>,<span class="ps-str">"3389"</span>,<span class="ps-str">"1433"</span>,<span class="ps-str">"3306"</span>,<span class="ps-str">"5432"</span>,<span class="ps-str">"6379"</span><span class="ps-op">)</span>,
+    <span class="ps-op">[</span><span class="ps-type">string</span><span class="ps-op">]</span><span class="ps-var">$WebhookUri</span>
+)
+
+<span class="ps-cmd">Connect-AzAccount</span> <span class="ps-param">-Identity</span>
+
+<span class="ps-var">$findings</span> = <span class="ps-op">@()</span>
+
+<span class="ps-cmd">Get-AzNetworkSecurityGroup</span> | <span class="ps-cmd">ForEach-Object</span> {
+    <span class="ps-var">$nsg</span> = <span class="ps-var">$_</span>
+    <span class="ps-var">$nsg</span>.SecurityRules |
+        <span class="ps-cmd">Where-Object</span> {
+            <span class="ps-var">$_</span>.Access              <span class="ps-op">-eq</span> <span class="ps-str">"Allow"</span>            <span class="ps-op">-and</span>
+            <span class="ps-var">$_</span>.Direction           <span class="ps-op">-eq</span> <span class="ps-str">"Inbound"</span>          <span class="ps-op">-and</span>
+            <span class="ps-var">$_</span>.SourceAddressPrefix  <span class="ps-op">-eq</span> <span class="ps-str">"*"</span>                <span class="ps-op">-and</span>
+            (<span class="ps-var">$_</span>.DestinationPortRange <span class="ps-op">-in</span> <span class="ps-var">$DangerousPorts</span> <span class="ps-op">-or</span> <span class="ps-var">$_</span>.DestinationPortRange <span class="ps-op">-eq</span> <span class="ps-str">"*"</span>)
+        } |
+        <span class="ps-cmd">ForEach-Object</span> {
+            <span class="ps-var">$findings</span> += <span class="ps-op">[</span><span class="ps-type">PSCustomObject</span><span class="ps-op">]@{</span>
+                NSG      = <span class="ps-var">$nsg</span>.Name
+                RG       = <span class="ps-var">$nsg</span>.ResourceGroupName
+                RuleName = <span class="ps-var">$_</span>.Name
+                Port     = <span class="ps-var">$_</span>.DestinationPortRange
+                Priority = <span class="ps-var">$_</span>.Priority
+            <span class="ps-op">}</span>
+        }
+}
+
+<span class="ps-cmd">Write-Output</span> <span class="ps-str">"Found <span class="ps-var">$($findings.Count)</span> open-to-internet rules:"</span>
+<span class="ps-var">$findings</span> | <span class="ps-cmd">Format-Table</span> <span class="ps-param">-AutoSize</span>
+
+<span class="ps-kw">if</span> (<span class="ps-var">$findings</span>.Count <span class="ps-op">-gt</span> <span class="ps-num">0</span> <span class="ps-op">-and</span> <span class="ps-var">$WebhookUri</span>) {
+    <span class="ps-var">$body</span> = <span class="ps-op">@{</span>
+        text = <span class="ps-str">"🚨 *NSG Audit Alert*: <span class="ps-var">$($findings.Count)</span> open port rules detected!`n"</span>
+        attachments = <span class="ps-var">$findings</span> | <span class="ps-cmd">ConvertTo-Json</span>
+    <span class="ps-op">}</span> | <span class="ps-cmd">ConvertTo-Json</span>
+
+    <span class="ps-cmd">Invoke-RestMethod</span> <span class="ps-param">-Uri</span> <span class="ps-var">$WebhookUri</span> <span class="ps-param">-Method</span> Post `
+        <span class="ps-param">-ContentType</span> <span class="ps-str">"application/json"</span> <span class="ps-param">-Body</span> <span class="ps-var">$body</span>
+    <span class="ps-cmd">Write-Output</span> <span class="ps-str">"Alert sent to Teams webhook."</span>
+}</div>
+  </div>
+
+  <h3>Example 4 — Rotate Storage Account Keys</h3>
+  <div class="code-block">
+    <div class="code-header">
+      <div class="code-header-left"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-filename">Rotate-StorageKeys.ps1</span></div>
+      <span class="code-lang">Runbook</span>
+    </div>
+    <div class="code-body"><span class="ps-kw">param</span>(
+    <span class="ps-op">[</span><span class="ps-type">string</span><span class="ps-op">]</span><span class="ps-var">$StorageAccountName</span>,
+    <span class="ps-op">[</span><span class="ps-type">string</span><span class="ps-op">]</span><span class="ps-var">$ResourceGroupName</span>,
+    <span class="ps-op">[</span><span class="ps-type">string</span><span class="ps-op">]</span><span class="ps-var">$KeyVaultName</span>,
+    <span class="ps-op">[</span><span class="ps-type">ValidateSet</span>(<span class="ps-str">"key1"</span>,<span class="ps-str">"key2"</span>)<span class="ps-op">][</span><span class="ps-type">string</span><span class="ps-op">]</span><span class="ps-var">$KeyName</span> = <span class="ps-str">"key1"</span>
+)
+
+<span class="ps-cmd">Connect-AzAccount</span> <span class="ps-param">-Identity</span>
+
+<span class="ps-comment"># Rotate the key</span>
+<span class="ps-var">$newKey</span> = <span class="ps-cmd">New-AzStorageAccountKey</span> <span class="ps-param">-ResourceGroupName</span> <span class="ps-var">$ResourceGroupName</span> `
+    <span class="ps-param">-Name</span> <span class="ps-var">$StorageAccountName</span> <span class="ps-param">-KeyName</span> <span class="ps-var">$KeyName</span> |
+    <span class="ps-cmd">Select-Object</span> <span class="ps-param">-ExpandProperty</span> Keys |
+    <span class="ps-cmd">Where-Object</span> { <span class="ps-var">$_</span>.KeyName <span class="ps-op">-eq</span> <span class="ps-var">$KeyName</span> }
+
+<span class="ps-cmd">Write-Output</span> <span class="ps-str">"Key rotated: <span class="ps-var">$($newKey.KeyName)</span>"</span>
+
+<span class="ps-comment"># Save new key to Key Vault</span>
+<span class="ps-var">$secretName</span>  = <span class="ps-str">"<span class="ps-var">$StorageAccountName</span>-<span class="ps-var">$KeyName</span>"</span>
+<span class="ps-var">$secretValue</span> = <span class="ps-cmd">ConvertTo-SecureString</span> <span class="ps-var">$newKey</span>.Value <span class="ps-param">-AsPlainText</span> <span class="ps-param">-Force</span>
+<span class="ps-cmd">Set-AzKeyVaultSecret</span> <span class="ps-param">-VaultName</span> <span class="ps-var">$KeyVaultName</span> <span class="ps-param">-Name</span> <span class="ps-var">$secretName</span> <span class="ps-param">-SecretValue</span> <span class="ps-var">$secretValue</span>
+<span class="ps-cmd">Write-Output</span> <span class="ps-str">"New key stored in Key Vault secret: <span class="ps-var">$secretName</span>"</span></div>
+  </div>
+</section>
+
+<!-- ─── MONITORING ─── -->
+<section class="section" id="monitoring">
+  <div class="section-header">
+    <span class="section-badge badge-orange">Azure Monitor</span>
+    <h2>Azure Monitor & Alerts via PowerShell</h2>
+    <p>Create metric alerts, action groups, and query activity logs programmatically.</p>
+  </div>
+
+  <div class="code-block">
+    <div class="code-header">
+      <div class="code-header-left"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-filename">az-monitor.ps1</span></div>
+      <span class="code-lang">PowerShell</span>
+    </div>
+    <div class="code-body"><span class="ps-comment"># ── CREATE ACTION GROUP ───────────────────────────────</span>
+<span class="ps-var">$emailReceiver</span> = <span class="ps-cmd">New-AzActionGroupReceiver</span> <span class="ps-param">-Name</span> <span class="ps-str">"ops-team"</span> `
+    <span class="ps-param">-EmailAddress</span> <span class="ps-str">"ops@company.com"</span> <span class="ps-param">-EmailReceiver</span>
+
+<span class="ps-cmd">Set-AzActionGroup</span> <span class="ps-param">-Name</span> <span class="ps-str">"ag-ops"</span> <span class="ps-param">-ResourceGroupName</span> <span class="ps-str">"rg-monitoring"</span> `
+    <span class="ps-param">-ShortName</span> <span class="ps-str">"opsag"</span> <span class="ps-param">-Receiver</span> <span class="ps-var">$emailReceiver</span>
+
+<span class="ps-comment"># ── CREATE METRIC ALERT ───────────────────────────────</span>
+<span class="ps-var">$condition</span> = <span class="ps-cmd">New-AzMetricAlertRuleV2Criteria</span> `
+    <span class="ps-param">-MetricName</span>       <span class="ps-str">"Percentage CPU"</span> `
+    <span class="ps-param">-MetricNamespace</span>  <span class="ps-str">"Microsoft.Compute/virtualMachines"</span> `
+    <span class="ps-param">-TimeAggregation</span>  <span class="ps-str">"Average"</span> `
+    <span class="ps-param">-Operator</span>         <span class="ps-str">"GreaterThan"</span> `
+    <span class="ps-param">-Threshold</span>        <span class="ps-num">85</span>
+
+<span class="ps-cmd">Add-AzMetricAlertRuleV2</span> `
+    <span class="ps-param">-Name</span>              <span class="ps-str">"alert-high-cpu"</span> `
+    <span class="ps-param">-ResourceGroupName</span> <span class="ps-str">"rg-prod"</span> `
+    <span class="ps-param">-WindowSize</span>        (<span class="ps-cmd">New-TimeSpan</span> <span class="ps-param">-Minutes</span> <span class="ps-num">5</span>) `
+    <span class="ps-param">-Frequency</span>         (<span class="ps-cmd">New-TimeSpan</span> <span class="ps-param">-Minutes</span> <span class="ps-num">1</span>) `
+    <span class="ps-param">-TargetResourceId</span>  <span class="ps-str">"/subscriptions/xxx/.../virtualMachines/web-01"</span> `
+    <span class="ps-param">-Condition</span>         <span class="ps-var">$condition</span> `
+    <span class="ps-param">-Severity</span>          <span class="ps-num">2</span> `
+    <span class="ps-param">-ActionGroupId</span>     <span class="ps-str">"/subscriptions/xxx/resourceGroups/rg-monitoring/providers/microsoft.insights/actionGroups/ag-ops"</span>
+
+<span class="ps-comment"># ── QUERY ACTIVITY LOG ────────────────────────────────</span>
+<span class="ps-cmd">Get-AzActivity</span> `
+    <span class="ps-param">-ResourceGroupName</span> <span class="ps-str">"rg-prod"</span> `
+    <span class="ps-param">-StartTime</span> (<span class="ps-cmd">Get-Date</span>).AddHours(<span class="ps-op">-</span><span class="ps-num">24</span>) `
+    <span class="ps-param">-EndTime</span>   (<span class="ps-cmd">Get-Date</span>) |
+    <span class="ps-cmd">Where-Object</span> { <span class="ps-var">$_</span>.Status.Value <span class="ps-op">-eq</span> <span class="ps-str">"Failed"</span> } |
+    <span class="ps-cmd">Select-Object</span> EventTimestamp, Caller, OperationName, Description |
+    <span class="ps-cmd">Format-Table</span></div>
+  </div>
+</section>
+
+<!-- ─── KQL INTRO ─── -->
+<section class="section" id="kql-intro">
+  <div class="section-header">
+    <span class="section-badge badge-yellow">KQL</span>
+    <h2>KQL Fundamentals — Kusto Query Language</h2>
+    <p>KQL is used in Azure Monitor Log Analytics, Microsoft Sentinel, and Azure Data Explorer to query large datasets with a pipe-based query language.</p>
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <tr><th>Operator</th><th>Purpose</th><th>Example</th></tr>
+      <tr><td>where</td><td>Filter rows</td><td>where Level == "Error"</td></tr>
+      <tr><td>project</td><td>Select / rename columns</td><td>project TimeGenerated, Message</td></tr>
+      <tr><td>extend</td><td>Add computed columns</td><td>extend DurationSec = Duration/1000</td></tr>
+      <tr><td>summarize</td><td>Aggregate</td><td>summarize count() by bin(TimeGenerated, 1h)</td></tr>
+      <tr><td>join</td><td>Combine tables</td><td>join kind=inner (Table2) on $left.Id == $right.Id</td></tr>
+      <tr><td>union</td><td>Combine rows from tables</td><td>union Table1, Table2</td></tr>
+      <tr><td>sort by</td><td>Sort results</td><td>sort by TimeGenerated desc</td></tr>
+      <tr><td>top</td><td>Top N rows</td><td>top 10 by Count</td></tr>
+      <tr><td>render</td><td>Visualise in portal</td><td>render timechart</td></tr>
+      <tr><td>parse</td><td>Extract from strings</td><td>parse Message with * "user:" User " " *</td></tr>
+    </table>
+  </div>
+
+  <div class="code-block">
+    <div class="code-header">
+      <div class="code-header-left"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-filename">kql-basics.kql</span></div>
+      <span class="code-lang">KQL</span>
+    </div>
+    <div class="code-body"><span class="kql-comment">// ── BASIC QUERY STRUCTURE ────────────────────────────</span>
+<span class="kql-tbl">AzureActivity</span>
+<span class="kql-op">|</span> <span class="kql-kw">where</span> TimeGenerated <span class="kql-op">&gt;</span> <span class="kql-fn">ago</span>(<span class="kql-num">24h</span>)
+<span class="kql-op">|</span> <span class="kql-kw">where</span> ActivityStatus <span class="kql-op">==</span> <span class="kql-str">"Failed"</span>
+<span class="kql-op">|</span> <span class="kql-kw">project</span> TimeGenerated, Caller, OperationNameValue, ResourceGroup
+<span class="kql-op">|</span> <span class="kql-kw">sort by</span> TimeGenerated <span class="kql-kw">desc</span>
+
+<span class="kql-comment">// ── COUNT ERRORS BY HOUR ─────────────────────────────</span>
+<span class="kql-tbl">AppExceptions</span>
+<span class="kql-op">|</span> <span class="kql-kw">where</span> TimeGenerated <span class="kql-op">&gt;</span> <span class="kql-fn">ago</span>(<span class="kql-num">7d</span>)
+<span class="kql-op">|</span> <span class="kql-kw">summarize</span> ErrorCount = <span class="kql-fn">count</span>() <span class="kql-kw">by</span> <span class="kql-fn">bin</span>(TimeGenerated, <span class="kql-num">1h</span>), ExceptionType
+<span class="kql-op">|</span> <span class="kql-kw">render</span> timechart
+
+<span class="kql-comment">// ── TOP 10 FAILING OPERATIONS ────────────────────────</span>
+<span class="kql-tbl">AzureActivity</span>
+<span class="kql-op">|</span> <span class="kql-kw">where</span> ActivityStatus <span class="kql-op">==</span> <span class="kql-str">"Failed"</span>
+<span class="kql-op">|</span> <span class="kql-kw">summarize</span> FailCount = <span class="kql-fn">count</span>() <span class="kql-kw">by</span> OperationNameValue
+<span class="kql-op">|</span> <span class="kql-kw">top</span> <span class="kql-num">10</span> <span class="kql-kw">by</span> FailCount
+
+<span class="kql-comment">// ── EXTEND WITH COMPUTED COLUMNS ────────────────────</span>
+<span class="kql-tbl">Perf</span>
+<span class="kql-op">|</span> <span class="kql-kw">where</span> ObjectName <span class="kql-op">==</span> <span class="kql-str">"Processor"</span> <span class="kql-kw">and</span> CounterName <span class="kql-op">==</span> <span class="kql-str">"% Processor Time"</span>
+<span class="kql-op">|</span> <span class="kql-kw">extend</span> CPURounded = <span class="kql-fn">round</span>(CounterValue, <span class="kql-num">1</span>)
+<span class="kql-op">|</span> <span class="kql-kw">extend</span> IsCritical = <span class="kql-fn">iff</span>(CounterValue <span class="kql-op">&gt;</span> <span class="kql-num">85</span>, <span class="kql-str">"CRITICAL"</span>, <span class="kql-str">"OK"</span>)
+<span class="kql-op">|</span> <span class="kql-kw">summarize</span> AvgCPU = <span class="kql-fn">avg</span>(CounterValue), MaxCPU = <span class="kql-fn">max</span>(CounterValue)
+       <span class="kql-kw">by</span> Computer, <span class="kql-fn">bin</span>(TimeGenerated, <span class="kql-num">5m</span>)
+<span class="kql-op">|</span> <span class="kql-kw">render</span> timechart
+
+<span class="kql-comment">// ── PARSE UNSTRUCTURED LOGS ──────────────────────────</span>
+<span class="kql-tbl">Syslog</span>
+<span class="kql-op">|</span> <span class="kql-kw">where</span> SyslogMessage <span class="kql-op">contains</span> <span class="kql-str">"Failed password"</span>
+<span class="kql-op">|</span> <span class="kql-fn">parse</span> SyslogMessage <span class="kql-kw">with</span> * <span class="kql-str">"Failed password for "</span> User <span class="kql-str">" from "</span> SrcIP <span class="kql-str">" port"</span> *
+<span class="kql-op">|</span> <span class="kql-kw">summarize</span> Attempts = <span class="kql-fn">count</span>() <span class="kql-kw">by</span> SrcIP, User
+<span class="kql-op">|</span> <span class="kql-kw">sort by</span> Attempts <span class="kql-kw">desc</span></div>
+  </div>
+</section>
+
+<!-- ─── KQL ADVANCED ─── -->
+<section class="section" id="kql-advanced">
+  <div class="section-header">
+    <span class="section-badge badge-yellow">KQL Advanced</span>
+    <h2>Advanced KQL Patterns</h2>
+    <p>Time series analysis, joins, let statements, functions, and dynamic objects for deep analytics.</p>
+  </div>
+
+  <div class="code-block">
+    <div class="code-header">
+      <div class="code-header-left"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-filename">kql-advanced.kql</span></div>
+      <span class="code-lang">KQL</span>
+    </div>
+    <div class="code-body"><span class="kql-comment">// ── LET STATEMENTS (Variables) ───────────────────────</span>
+<span class="kql-kw">let</span> StartTime   = <span class="kql-fn">ago</span>(<span class="kql-num">7d</span>);
+<span class="kql-kw">let</span> Threshold   = <span class="kql-num">100</span>;
+<span class="kql-kw">let</span> SuspectedIPs = dynamic([<span class="kql-str">"10.0.0.42"</span>, <span class="kql-str">"192.168.1.99"</span>]);
+
+<span class="kql-tbl">SigninLogs</span>
+<span class="kql-op">|</span> <span class="kql-kw">where</span> TimeGenerated <span class="kql-op">&gt;</span> StartTime
+<span class="kql-op">|</span> <span class="kql-kw">where</span> IPAddress <span class="kql-op">in</span> (SuspectedIPs)
+<span class="kql-op">|</span> <span class="kql-kw">where</span> ResultType <span class="kql-op">!=</span> <span class="kql-num">0</span>      <span class="kql-comment">// non-success</span>
+<span class="kql-op">|</span> <span class="kql-kw">summarize</span> FailCount = <span class="kql-fn">count</span>() <span class="kql-kw">by</span> IPAddress, UserPrincipalName
+<span class="kql-op">|</span> <span class="kql-kw">where</span> FailCount <span class="kql-op">&gt;</span> Threshold
+
+<span class="kql-comment">// ── JOIN ─────────────────────────────────────────────</span>
+<span class="kql-tbl">SecurityAlert</span>
+<span class="kql-op">|</span> <span class="kql-kw">where</span> TimeGenerated <span class="kql-op">&gt;</span> <span class="kql-fn">ago</span>(<span class="kql-num">1d</span>)
+<span class="kql-op">|</span> <span class="kql-kw">join kind=inner</span> (
+    <span class="kql-tbl">SigninLogs</span>
+    <span class="kql-op">|</span> <span class="kql-kw">where</span> TimeGenerated <span class="kql-op">&gt;</span> <span class="kql-fn">ago</span>(<span class="kql-num">1d</span>)
+    <span class="kql-op">|</span> <span class="kql-kw">project</span> UserPrincipalName, IPAddress, Location
+) <span class="kql-kw">on</span> $left.Entities <span class="kql-op">contains</span> $right.UserPrincipalName
+<span class="kql-op">|</span> <span class="kql-kw">project</span> TimeGenerated, AlertName, UserPrincipalName, IPAddress, Location
+
+<span class="kql-comment">// ── TIME SERIES ANOMALY DETECTION ────────────────────</span>
+<span class="kql-kw">let</span> rawData =
+    <span class="kql-tbl">requests</span>
+    <span class="kql-op">|</span> <span class="kql-kw">where</span> timestamp <span class="kql-op">&gt;</span> <span class="kql-fn">ago</span>(<span class="kql-num">7d</span>)
+    <span class="kql-op">|</span> <span class="kql-kw">summarize</span> RequestCount = <span class="kql-fn">count</span>() <span class="kql-kw">by</span> <span class="kql-fn">bin</span>(timestamp, <span class="kql-num">5m</span>);
+rawData
+<span class="kql-op">|</span> <span class="kql-fn">make-series</span> Requests = <span class="kql-fn">sum</span>(RequestCount) <span class="kql-kw">on</span> timestamp
+    <span class="kql-kw">from</span> <span class="kql-fn">ago</span>(<span class="kql-num">7d</span>) <span class="kql-kw">to</span> <span class="kql-fn">now</span>() <span class="kql-kw">step</span> <span class="kql-num">5m</span>
+<span class="kql-op">|</span> <span class="kql-fn">extend</span> (<span class="kql-fn">anomalies</span>, score, baseline) = <span class="kql-fn">series_decompose_anomalies</span>(Requests, <span class="kql-num">2.0</span>, <span class="kql-op">-</span><span class="kql-num">1</span>, <span class="kql-str">"linefit"</span>)
+<span class="kql-op">|</span> <span class="kql-fn">mv-expand</span> timestamp, Requests, anomalies, score, baseline
+<span class="kql-op">|</span> <span class="kql-kw">where</span> anomalies <span class="kql-op">!=</span> <span class="kql-num">0</span>
+<span class="kql-op">|</span> <span class="kql-kw">project</span> timestamp, Requests, score, baseline
+
+<span class="kql-comment">// ── DYNAMIC OBJECT PARSING ───────────────────────────</span>
+<span class="kql-tbl">AzureDiagnostics</span>
+<span class="kql-op">|</span> <span class="kql-kw">where</span> Category <span class="kql-op">==</span> <span class="kql-str">"FrontdoorAccessLog"</span>
+<span class="kql-op">|</span> <span class="kql-fn">extend</span> parsed = <span class="kql-fn">parse_json</span>(requestUri_s)
+<span class="kql-op">|</span> <span class="kql-kw">project</span>
+    TimeGenerated,
+    <span class="kql-fn">tostring</span>(parsed[<span class="kql-str">"path"</span>]),
+    <span class="kql-fn">tostring</span>(parsed[<span class="kql-str">"query"</span>]),
+    httpStatusCode_d
+
+<span class="kql-comment">// ── REUSABLE FUNCTION ────────────────────────────────</span>
+<span class="kql-kw">let</span> GetFailedLogins = (<span class="kql-fn">lookback</span>:timespan = <span class="kql-num">1h</span>, minCount:<span class="kql-fn">int</span> = <span class="kql-num">5</span>) {
+    <span class="kql-tbl">SigninLogs</span>
+    <span class="kql-op">|</span> <span class="kql-kw">where</span> TimeGenerated <span class="kql-op">&gt;</span> <span class="kql-fn">ago</span>(<span class="kql-fn">lookback</span>)
+    <span class="kql-op">|</span> <span class="kql-kw">where</span> ResultType <span class="kql-op">!=</span> <span class="kql-num">0</span>
+    <span class="kql-op">|</span> <span class="kql-kw">summarize</span> Attempts = <span class="kql-fn">count</span>() <span class="kql-kw">by</span> UserPrincipalName, IPAddress
+    <span class="kql-op">|</span> <span class="kql-kw">where</span> Attempts <span class="kql-op">&gt;=</span> minCount
+};
+
+<span class="kql-fn">GetFailedLogins</span>(lookback=<span class="kql-num">6h</span>, minCount=<span class="kql-num">10</span>)
+<span class="kql-op">|</span> <span class="kql-kw">sort by</span> Attempts <span class="kql-kw">desc</span></div>
+  </div>
+</section>
+
+<!-- ─── KQL FROM PS ─── -->
+<section class="section" id="kql-ps">
+  <div class="section-header">
+    <span class="section-badge badge-yellow">KQL + PowerShell</span>
+    <h2>Running KQL Queries from PowerShell</h2>
+    <p>Execute KQL queries against Log Analytics workspaces directly from PowerShell scripts and runbooks.</p>
+  </div>
+
+  <div class="code-block">
+    <div class="code-header">
+      <div class="code-header-left"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-filename">kql-from-powershell.ps1</span></div>
+      <span class="code-lang">PowerShell + KQL</span>
+    </div>
+    <div class="code-body"><span class="ps-comment"># ── SETUP ────────────────────────────────────────────</span>
+<span class="ps-cmd">Connect-AzAccount</span> <span class="ps-param">-Identity</span>
+
+<span class="ps-var">$workspaceId</span> = <span class="ps-str">"xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"</span>
+
+<span class="ps-comment"># ── RUN A KQL QUERY ──────────────────────────────────</span>
+<span class="ps-var">$kql</span> = <span class="ps-str">@"
+AzureActivity
+| where TimeGenerated > ago(24h)
+| where ActivityStatus == "Failed"
+| summarize FailCount = count() by OperationNameValue
+| sort by FailCount desc
+| take 10
+"@</span>
+
+<span class="ps-var">$result</span> = <span class="ps-cmd">Invoke-AzOperationalInsightsQuery</span> `
+    <span class="ps-param">-WorkspaceId</span> <span class="ps-var">$workspaceId</span> `
+    <span class="ps-param">-Query</span> <span class="ps-var">$kql</span>
+
+<span class="ps-comment"># ── PROCESS RESULTS ──────────────────────────────────</span>
+<span class="ps-var">$rows</span> = <span class="ps-var">$result</span>.Results
+<span class="ps-var">$rows</span> | <span class="ps-cmd">Format-Table</span> <span class="ps-param">-AutoSize</span>
+
+<span class="ps-comment"># ── PARAMETERISED QUERY ──────────────────────────────</span>
+<span class="ps-kw">function</span> <span class="ps-cmd">Invoke-LogAnalyticsQuery</span> {
+    <span class="ps-kw">param</span>(
+        <span class="ps-op">[</span><span class="ps-type">string</span><span class="ps-op">]</span><span class="ps-var">$WorkspaceId</span>,
+        <span class="ps-op">[</span><span class="ps-type">string</span><span class="ps-op">]</span><span class="ps-var">$Query</span>,
+        <span class="ps-op">[</span><span class="ps-type">int</span><span class="ps-op">]</span>   <span class="ps-var">$TimeoutSeconds</span> = <span class="ps-num">120</span>
+    )
+    <span class="ps-kw">try</span> {
+        <span class="ps-var">$params</span> = <span class="ps-op">@{</span>
+            WorkspaceId = <span class="ps-var">$WorkspaceId</span>
+            Query       = <span class="ps-var">$Query</span>
+            Timespan    = [<span class="ps-type">TimeSpan</span>]::FromSeconds(<span class="ps-var">$TimeoutSeconds</span>)
+        <span class="ps-op">}</span>
+        <span class="ps-var">$res</span> = <span class="ps-cmd">Invoke-AzOperationalInsightsQuery</span> <span class="ps-op">@</span><span class="ps-var">$params</span>
+        <span class="ps-kw">return</span> <span class="ps-var">$res</span>.Results
+    } <span class="ps-kw">catch</span> {
+        <span class="ps-cmd">Write-Error</span> <span class="ps-str">"KQL query failed: <span class="ps-var">$($_.Exception.Message)</span>"</span>
+        <span class="ps-kw">return</span> <span class="ps-var">$null</span>
+    }
+}
+
+<span class="ps-comment"># ── HIGH MEMORY VMs ──────────────────────────────────</span>
+<span class="ps-var">$memQuery</span> = <span class="ps-str">@"
+Perf
+| where TimeGenerated > ago(1h)
+| where ObjectName == "Memory" and CounterName == "Available MBytes"
+| summarize AvgFreeMemMB = avg(CounterValue) by Computer
+| where AvgFreeMemMB < 512
+| sort by AvgFreeMemMB asc
+"@</span>
+
+<span class="ps-var">$lowMemVMs</span> = <span class="ps-cmd">Invoke-LogAnalyticsQuery</span> <span class="ps-param">-WorkspaceId</span> <span class="ps-var">$workspaceId</span> <span class="ps-param">-Query</span> <span class="ps-var">$memQuery</span>
+<span class="ps-var">$lowMemVMs</span> | <span class="ps-cmd">ForEach-Object</span> {
+    <span class="ps-cmd">Write-Warning</span> <span class="ps-str">"Low memory on <span class="ps-var">$($_.Computer)</span>: <span class="ps-var">$($_.AvgFreeMemMB)</span> MB free"</span>
+}
+
+<span class="ps-comment"># ── EXPORT RESULTS TO CSV ────────────────────────────</span>
+<span class="ps-var">$rows</span> | <span class="ps-cmd">Export-Csv</span> <span class="ps-str">"./kql-results-<span class="ps-var">$(Get-Date -f 'yyyyMMdd-HHmm')</span>.csv"</span> <span class="ps-param">-NoTypeInformation</span></div>
+  </div>
+</section>
+
+<!-- ─── SENTINEL ─── -->
+<section class="section" id="sentinel">
+  <div class="section-header">
+    <span class="section-badge badge-red">Microsoft Sentinel</span>
+    <h2>Sentinel Security Analytics — KQL Queries</h2>
+    <p>Production-grade KQL analytics rules for threat detection, hunting, and investigation in Microsoft Sentinel.</p>
+  </div>
+
+  <h3>Brute Force Login Detection</h3>
+  <div class="code-block">
+    <div class="code-header">
+      <div class="code-header-left"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-filename">sentinel-brute-force.kql</span></div>
+      <span class="code-lang">KQL — Sentinel Analytic Rule</span>
+    </div>
+    <div class="code-body"><span class="kql-kw">let</span> FailureThreshold = <span class="kql-num">10</span>;
+<span class="kql-kw">let</span> LookbackWindow  = <span class="kql-fn">ago</span>(<span class="kql-num">1h</span>);
+<span class="kql-kw">let</span> SuccessThreshold = <span class="kql-num">1</span>;
+
+<span class="kql-tbl">SigninLogs</span>
+<span class="kql-op">|</span> <span class="kql-kw">where</span> TimeGenerated <span class="kql-op">&gt;</span> LookbackWindow
+<span class="kql-op">|</span> <span class="kql-kw">where</span> ResultType <span class="kql-op">==</span> <span class="kql-str">"50126"</span>   <span class="kql-comment">// Invalid credentials</span>
+<span class="kql-op">|</span> <span class="kql-kw">summarize</span>
+    FailedAttempts  = <span class="kql-fn">count</span>(),
+    FailedLocations = <span class="kql-fn">make_set</span>(Location),
+    FailedIPs       = <span class="kql-fn">make_set</span>(IPAddress),
+    FirstFailure    = <span class="kql-fn">min</span>(TimeGenerated),
+    LastFailure     = <span class="kql-fn">max</span>(TimeGenerated)
+    <span class="kql-kw">by</span> UserPrincipalName
+<span class="kql-op">|</span> <span class="kql-kw">where</span> FailedAttempts <span class="kql-op">&gt;=</span> FailureThreshold
+<span class="kql-op">|</span> <span class="kql-fn">join kind=leftouter</span> (
+    <span class="kql-tbl">SigninLogs</span>
+    <span class="kql-op">|</span> <span class="kql-kw">where</span> TimeGenerated <span class="kql-op">&gt;</span> LookbackWindow
+    <span class="kql-op">|</span> <span class="kql-kw">where</span> ResultType <span class="kql-op">==</span> <span class="kql-str">"0"</span>   <span class="kql-comment">// Success</span>
+    <span class="kql-op">|</span> <span class="kql-kw">summarize</span> SuccessCount = <span class="kql-fn">count</span>() <span class="kql-kw">by</span> UserPrincipalName
+) <span class="kql-kw">on</span> UserPrincipalName
+<span class="kql-op">|</span> <span class="kql-kw">where</span> isnotnull(SuccessCount) <span class="kql-kw">and</span> SuccessCount <span class="kql-op">&gt;=</span> SuccessThreshold
+<span class="kql-op">|</span> <span class="kql-kw">project</span>
+    UserPrincipalName,
+    FailedAttempts,
+    SuccessCount,
+    FailedIPs,
+    FailedLocations,
+    FirstFailure,
+    LastFailure
+<span class="kql-op">|</span> <span class="kql-fn">extend</span> Severity = <span class="kql-str">"High"</span>, TacticName = <span class="kql-str">"CredentialAccess"</span></div>
+  </div>
+
+  <h3>Suspicious PowerShell Execution</h3>
+  <div class="code-block">
+    <div class="code-header">
+      <div class="code-header-left"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-filename">sentinel-suspicious-ps.kql</span></div>
+      <span class="code-lang">KQL — Sentinel Hunting</span>
+    </div>
+    <div class="code-body"><span class="kql-kw">let</span> SuspiciousArgs = dynamic([
+    <span class="kql-str">"-EncodedCommand"</span>, <span class="kql-str">"-enc"</span>, <span class="kql-str">"-nop"</span>, <span class="kql-str">"-NonInteractive"</span>,
+    <span class="kql-str">"Invoke-Expression"</span>, <span class="kql-str">"IEX"</span>, <span class="kql-str">"DownloadString"</span>,
+    <span class="kql-str">"Invoke-Mimikatz"</span>, <span class="kql-str">"AmsiBypass"</span>, <span class="kql-str">"Bypass"</span>
+]);
+
+<span class="kql-tbl">SecurityEvent</span>
+<span class="kql-op">|</span> <span class="kql-kw">where</span> TimeGenerated <span class="kql-op">&gt;</span> <span class="kql-fn">ago</span>(<span class="kql-num">24h</span>)
+<span class="kql-op">|</span> <span class="kql-kw">where</span> EventID <span class="kql-op">==</span> <span class="kql-num">4688</span>     <span class="kql-comment">// Process creation</span>
+<span class="kql-op">|</span> <span class="kql-kw">where</span> NewProcessName <span class="kql-op">endswith</span> <span class="kql-str">"powershell.exe"</span>
+    <span class="kql-kw">or</span> NewProcessName <span class="kql-op">endswith</span> <span class="kql-str">"pwsh.exe"</span>
+<span class="kql-op">|</span> <span class="kql-kw">extend</span> CmdLine = <span class="kql-fn">tolower</span>(CommandLine)
+<span class="kql-op">|</span> <span class="kql-kw">where</span> <span class="kql-fn">has_any</span>(CmdLine, SuspiciousArgs)
+<span class="kql-op">|</span> <span class="kql-kw">project</span>
+    TimeGenerated,
+    Computer,
+    Account,
+    NewProcessName,
+    CommandLine,
+    ParentProcessName = SubjectUserName
+<span class="kql-op">|</span> <span class="kql-fn">extend</span>
+    Entities         = pack_array(pack(<span class="kql-str">"type"</span>,<span class="kql-str">"host"</span>,<span class="kql-str">"HostName"</span>,Computer)),
+    RiskScore        = <span class="kql-fn">case</span>(
+        CmdLine <span class="kql-op">contains</span> <span class="kql-str">"mimikatz"</span>,    <span class="kql-num">100</span>,
+        CmdLine <span class="kql-op">contains</span> <span class="kql-str">"encodedcommand"</span>, <span class="kql-num">80</span>,
+        CmdLine <span class="kql-op">contains</span> <span class="kql-str">"downloadstring"</span>,  <span class="kql-num">70</span>,
+                                          <span class="kql-num">50</span>
+    )
+<span class="kql-op">|</span> <span class="kql-kw">sort by</span> RiskScore <span class="kql-kw">desc</span></div>
+  </div>
+
+  <h3>Data Exfiltration Detection</h3>
+  <div class="code-block">
+    <div class="code-header">
+      <div class="code-header-left"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-filename">sentinel-data-exfil.kql</span></div>
+      <span class="code-lang">KQL — Sentinel Analytic Rule</span>
+    </div>
+    <div class="code-body"><span class="kql-kw">let</span> BaselineWindow   = <span class="kql-fn">ago</span>(<span class="kql-num">7d</span>);
+<span class="kql-kw">let</span> DetectionWindow  = <span class="kql-fn">ago</span>(<span class="kql-num">1h</span>);
+<span class="kql-kw">let</span> MultiplierAlert  = <span class="kql-num">3.0</span>;   <span class="kql-comment">// 3x baseline = alert</span>
+
+<span class="kql-kw">let</span> Baseline =
+    <span class="kql-tbl">StorageBlobLogs</span>
+    <span class="kql-op">|</span> <span class="kql-kw">where</span> TimeGenerated <span class="kql-op">between</span>(BaselineWindow .. DetectionWindow)
+    <span class="kql-op">|</span> <span class="kql-kw">where</span> OperationName <span class="kql-op">==</span> <span class="kql-str">"GetBlob"</span>
+    <span class="kql-op">|</span> <span class="kql-kw">summarize</span>
+        AvgDailyBytes = <span class="kql-fn">avg</span>(ResponseBodySize),
+        StdDev        = <span class="kql-fn">stdev</span>(ResponseBodySize)
+        <span class="kql-kw">by</span> CallerIpAddress;
+
+<span class="kql-tbl">StorageBlobLogs</span>
+<span class="kql-op">|</span> <span class="kql-kw">where</span> TimeGenerated <span class="kql-op">&gt;</span> DetectionWindow
+<span class="kql-op">|</span> <span class="kql-kw">where</span> OperationName <span class="kql-op">==</span> <span class="kql-str">"GetBlob"</span>
+<span class="kql-op">|</span> <span class="kql-kw">summarize</span>
+    CurrentBytes = <span class="kql-fn">sum</span>(ResponseBodySize),
+    BlobCount    = <span class="kql-fn">count</span>(),
+    BlobNames    = <span class="kql-fn">make_set</span>(ObjectKey, <span class="kql-num">20</span>)
+    <span class="kql-kw">by</span> CallerIpAddress, <span class="kql-fn">bin</span>(TimeGenerated, <span class="kql-num">1h</span>)
+<span class="kql-op">|</span> <span class="kql-fn">join kind=inner</span> Baseline <span class="kql-kw">on</span> CallerIpAddress
+<span class="kql-op">|</span> <span class="kql-kw">where</span> CurrentBytes <span class="kql-op">&gt;</span> (AvgDailyBytes <span class="kql-op">*</span> MultiplierAlert)
+<span class="kql-op">|</span> <span class="kql-kw">project</span>
+    TimeGenerated,
+    CallerIpAddress,
+    CurrentBytes,
+    AvgDailyBytes,
+    Ratio = <span class="kql-fn">round</span>(CurrentBytes <span class="kql-op">/</span> AvgDailyBytes, <span class="kql-num">1</span>),
+    BlobCount,
+    BlobNames
+<span class="kql-op">|</span> <span class="kql-kw">sort by</span> Ratio <span class="kql-kw">desc</span></div>
+  </div>
+
+  <h3>Azure Automation Runbook — Trigger Playbook on Sentinel Alert</h3>
+  <div class="code-block">
+    <div class="code-header">
+      <div class="code-header-left"><div class="code-dots"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div><span class="code-filename">Respond-SentinelAlert.ps1</span></div>
+      <span class="code-lang">Runbook</span>
+    </div>
+    <div class="code-body"><span class="ps-comment"># Called by Sentinel Automation Rule via webhook</span>
+<span class="ps-kw">param</span>(
+    <span class="ps-op">[</span><span class="ps-type">object</span><span class="ps-op">]</span><span class="ps-var">$WebhookData</span>
+)
+
+<span class="ps-cmd">Connect-AzAccount</span> <span class="ps-param">-Identity</span>
+
+<span class="ps-comment"># Parse the incident payload</span>
+<span class="ps-var">$body</span>     = <span class="ps-var">$WebhookData</span>.RequestBody | <span class="ps-cmd">ConvertFrom-Json</span>
+<span class="ps-var">$incident</span> = <span class="ps-var">$body</span>.object.properties
+
+<span class="ps-cmd">Write-Output</span> <span class="ps-str">"Incident: <span class="ps-var">$($incident.title)</span>"</span>
+<span class="ps-cmd">Write-Output</span> <span class="ps-str">"Severity: <span class="ps-var">$($incident.severity)</span>"</span>
+
+<span class="ps-comment"># Extract entities</span>
+<span class="ps-var">$entities</span> = <span class="ps-var">$incident</span>.relatedEntities | <span class="ps-cmd">ConvertFrom-Json</span>
+<span class="ps-var">$hostEntities</span> = <span class="ps-var">$entities</span> | <span class="ps-cmd">Where-Object</span> { <span class="ps-var">$_</span>.kind <span class="ps-op">-eq</span> <span class="ps-str">"Host"</span> }
+
+<span class="ps-kw">foreach</span> (<span class="ps-var">$host</span> <span class="ps-kw">in</span> <span class="ps-var">$hostEntities</span>) {
+    <span class="ps-var">$vmName</span> = <span class="ps-var">$host</span>.properties.hostName
+
+    <span class="ps-kw">if</span> (<span class="ps-var">$incident</span>.severity <span class="ps-op">-eq</span> <span class="ps-str">"High"</span>) {
+        <span class="ps-cmd">Write-Warning</span> <span class="ps-str">"Isolating compromised VM: <span class="ps-var">$vmName</span>"</span>
+
+        <span class="ps-comment"># Remove from load balancer backend pool</span>
+        <span class="ps-var">$nic</span> = <span class="ps-cmd">Get-AzNetworkInterface</span> | <span class="ps-cmd">Where-Object</span> { <span class="ps-var">$_</span>.VirtualMachine.Id <span class="ps-op">-like</span> <span class="ps-str">"*<span class="ps-var">$vmName</span>*"</span> }
+        <span class="ps-kw">if</span> (<span class="ps-var">$nic</span>) {
+            <span class="ps-comment"># Apply isolate NSG</span>
+            <span class="ps-var">$isolateNsg</span> = <span class="ps-cmd">Get-AzNetworkSecurityGroup</span> <span class="ps-param">-Name</span> <span class="ps-str">"nsg-isolate"</span> <span class="ps-param">-ResourceGroupName</span> <span class="ps-str">"rg-security"</span>
+            <span class="ps-var">$nic</span>.NetworkSecurityGroup = <span class="ps-var">$isolateNsg</span>
+            <span class="ps-var">$nic</span> | <span class="ps-cmd">Set-AzNetworkInterface</span>
+            <span class="ps-cmd">Write-Output</span> <span class="ps-str">"Isolation NSG applied to <span class="ps-var">$vmName</span>"</span>
+        }
+    }
+
+    <span class="ps-comment"># Capture memory dump for forensics</span>
+    <span class="ps-cmd">Invoke-AzVMRunCommand</span> <span class="ps-param">-VMName</span> <span class="ps-var">$vmName</span> <span class="ps-param">-ResourceGroupName</span> <span class="ps-str">"rg-prod"</span> `
+        <span class="ps-param">-CommandId</span> <span class="ps-str">"RunPowerShellScript"</span> `
+        <span class="ps-param">-ScriptString</span> <span class="ps-str">"Get-Process | Export-Csv C:\forensics\processes-<span class="ps-var">$(Get-Date -f yyyyMMddHHmm)</span>.csv -NoTypeInfo"</span>
+}
+
+<span class="ps-cmd">Write-Output</span> <span class="ps-str">"Automated response complete."</span></div>
+  </div>
+</section>
+
+<!-- ─── FOOTER ─── -->
+<div class="footer">
+  <p>Built with <strong>PowerShell</strong> knowledge & <strong>Azure</strong> expertise. From basics to expert — keep scripting! 🚀</p>
+  <p style="margin-top:8px">PS 7.x · Az Module · Azure Automation · Log Analytics · Microsoft Sentinel · KQL</p>
+</div>
+
+</main>
+
+<script>
+  // Active nav link highlighting
+  const sections = document.querySelectorAll('section[id]');
+  const navLinks = document.querySelectorAll('.nav-link');
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        navLinks.forEach(l => l.classList.remove('active'));
+        const active = document.querySelector(`.nav-link[href="#${entry.target.id}"]`);
+        if (active) active.classList.add('active');
+      }
+    });
+  }, { threshold: 0.3, rootMargin: '-80px 0px -60% 0px' });
+
+  sections.forEach(s => observer.observe(s));
+
+  // Close sidebar on mobile when clicking a link
+  navLinks.forEach(link => {
+    link.addEventListener('click', () => {
+      document.querySelector('.sidebar').classList.remove('open');
+    });
+  });
+</script>
+</body>
+</html>
